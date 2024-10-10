@@ -9,12 +9,7 @@ import {
   Input,
   notification,
 } from "antd";
-import {
-  procurarTodosClientes,
-  removerCliente,
-  atualizarCliente,
-  criarCliente,
-} from "../../service/cliente_service";
+import { atualizarFornecedor, criarFornecedor, procurarTodosFornecedores, removerFornecedor } from "../../service/fornecedor_service";
 import { Formik, Form as FormikForm, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
@@ -22,31 +17,30 @@ const { Title } = Typography;
 
 const validationSchema = Yup.object().shape({
   nome: Yup.string().required("Nome é obrigatório!"),
-  cnpjCpf: Yup.string().required("CNPJ/CPF é obrigatório!"),
-  endereco: Yup.string().required("Endereço é obrigatório!"),
+  cnpj: Yup.string().required("CNPJ é obrigatório!"),
   telefone: Yup.string().required("Telefone é obrigatório!"),
   email: Yup.string().email("Email inválido!").required("Email é obrigatório!"),
 });
 
-const TabelaClientes: React.FC = () => {
-  const [clientes, setClientes] = useState<any[]>([]);
+const TabelaFornecedores: React.FC = () => {
+  const [fornecedores, setFornecedores] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [selectedCliente, setSelectedCliente] = useState<any>(null);
+  const [selectedFornecedor, setSelectedFornecedor] = useState<any>(null);
 
   useEffect(() => {
-    listarClientes();
+    listarFornecedores();
   }, []);
 
-  const listarClientes = async () => {
+  const listarFornecedores = async () => {
     setLoading(true);
     try {
-      const data = await procurarTodosClientes();
-      setClientes(data);
+      const data = await procurarTodosFornecedores();
+      setFornecedores(data);
     } catch (error: any) {
-      console.error("Erro ao listar clientes:", error);
+      console.error("Erro ao listar fornecedores:", error);
       notification.error({
-        message: "Erro ao listar clientes",
+        message: "Erro ao listar fornecedores",
         description: "Alguma coisa deu errado, tente novamente.",
       });
     } finally {
@@ -56,57 +50,59 @@ const TabelaClientes: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      await removerCliente(id);
-      setClientes(clientes.filter((cliente) => cliente.id !== id));
+      await removerFornecedor(id);
+      setFornecedores(
+        fornecedores.filter((fornecedor) => fornecedor.id !== id)
+      );
       notification.success({
-        message: "Cliente deletado com sucesso",
-        description: "O cliente foi removido com sucesso.",
+        message: "Fornecedor deletado com sucesso",
+        description: "O fornecedor foi removido com sucesso.",
       });
     } catch (error: any) {
-      console.error("Erro ao deletar cliente:", error);
+      console.error("Erro ao deletar fornecedor:", error);
       notification.error({
-        message: "Erro ao deletar cliente",
+        message: "Erro ao deletar fornecedor",
         description: error.message,
       });
     }
   };
 
-  const handleEdit = (cliente: any) => {
-    setSelectedCliente(cliente);
+  const handleEdit = (fornecedor: any) => {
+    setSelectedFornecedor(fornecedor);
     setModalVisible(true);
   };
 
-  const handleNewCliente = () => {
-    setSelectedCliente(null);
+  const handleNewFornecedor = () => {
+    setSelectedFornecedor(null);
     setModalVisible(true);
   };
 
   const handleModalOk = async (values: any) => {
     try {
-      if (selectedCliente) {
-        await atualizarCliente(selectedCliente.id, values);
-        setClientes(
-          clientes.map((c) =>
-            c.id === selectedCliente.id ? { ...c, ...values } : c
+      if (selectedFornecedor) {
+        await atualizarFornecedor(selectedFornecedor.id, values);
+        setFornecedores(
+          fornecedores.map((f) =>
+            f.id === selectedFornecedor.id ? { ...f, ...values } : f
           )
         );
         notification.success({
-          message: "Cliente atualizado com sucesso",
-          description: "O cliente foi atualizado com sucesso.",
+          message: "Fornecedor atualizado com sucesso",
+          description: "O fornecedor foi atualizado com sucesso.",
         });
       } else {
-        const newCliente = await criarCliente(values);
-        setClientes([...clientes, newCliente]);
+        const newFornecedor = await criarFornecedor(values);
+        setFornecedores([...fornecedores, newFornecedor]);
         notification.success({
-          message: "Cliente criado com sucesso",
-          description: "O novo cliente foi criado com sucesso.",
+          message: "Fornecedor criado com sucesso",
+          description: "O novo fornecedor foi criado com sucesso.",
         });
       }
       setModalVisible(false);
     } catch (error: any) {
-      console.error("Erro ao atualizar ou criar cliente:", error);
+      console.error("Erro ao atualizar ou criar fornecedor:", error);
       notification.error({
-        message: "Erro ao atualizar ou criar cliente",
+        message: "Erro ao atualizar ou criar fornecedor",
         description: error.message,
       });
     }
@@ -124,14 +120,9 @@ const TabelaClientes: React.FC = () => {
       key: "nome",
     },
     {
-      title: "CNPJ/CPF",
-      dataIndex: "cnpjCpf",
-      key: "cnpjCpf",
-    },
-    {
-      title: "Endereço",
-      dataIndex: "endereco",
-      key: "endereco",
+      title: "CNPJ",
+      dataIndex: "cnpj",
+      key: "cnpj",
     },
     {
       title: "Telefone",
@@ -213,32 +204,31 @@ const TabelaClientes: React.FC = () => {
           alignItems: "center",
         }}
       >
-        <Title level={2}>Clientes</Title>
-        <Button type="primary" onClick={handleNewCliente}>
-          Novo cliente
+        <Title level={2}>Fornecedores</Title>
+        <Button type="primary" onClick={handleNewFornecedor}>
+          Novo fornecedor
         </Button>
       </div>
       <div style={{ border: "1px solid #cdcdcd ", borderRadius: 8 }}>
-        <Table dataSource={clientes} columns={columns} rowKey="id" />
+        <Table dataSource={fornecedores} columns={columns} rowKey="id" />
       </div>
 
       <Modal
-        title={selectedCliente ? "Editar Cliente" : "Criar Cliente"}
+        title={selectedFornecedor ? "Editar Fornecedor" : "Criar Fornecedor"}
         open={modalVisible}
         onCancel={() => {
           setModalVisible(false);
-          setSelectedCliente(null);
+          setSelectedFornecedor(null);
         }}
         footer={null}
       >
         <Formik
           initialValues={{
-            nome: selectedCliente ? selectedCliente.nome : "",
-            cnpjCpf: selectedCliente ? selectedCliente.cnpjCpf : "",
-            endereco: selectedCliente ? selectedCliente.endereco : "",
-            telefone: selectedCliente ? selectedCliente.telefone : "",
-            email: selectedCliente ? selectedCliente.email : "",
-            criadorId: 1,
+            nome: selectedFornecedor ? selectedFornecedor.nome : "",
+            cnpj: selectedFornecedor ? selectedFornecedor.cnpj : "",
+            telefone: selectedFornecedor ? selectedFornecedor.telefone : "",
+            email: selectedFornecedor ? selectedFornecedor.email : "",
+            criadorId: 1
           }}
           validationSchema={validationSchema}
           onSubmit={handleModalOk}
@@ -253,19 +243,11 @@ const TabelaClientes: React.FC = () => {
                   {(msg) => <div style={{ color: "red" }}>{msg}</div>}
                 </ErrorMessage>
               </Form.Item>
-              <Form.Item label="CNPJ/CPF" required>
-                <Field name="cnpjCpf">
+              <Form.Item label="CNPJ" required>
+                <Field name="cnpj">
                   {({ field, form }: any) => <Input {...field} />}
                 </Field>
-                <ErrorMessage name="cnpjCpf">
-                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
-                </ErrorMessage>
-              </Form.Item>
-              <Form.Item label="Endereço" required>
-                <Field name="endereco">
-                  {({ field, form }: any) => <Input {...field} />}
-                </Field>
-                <ErrorMessage name="endereco">
+                <ErrorMessage name="cnpj">
                   {(msg) => <div style={{ color: "red" }}>{msg}</div>}
                 </ErrorMessage>
               </Form.Item>
@@ -287,7 +269,7 @@ const TabelaClientes: React.FC = () => {
               </Form.Item>
               <Form.Item>
                 <Button type="primary" htmlType="submit">
-                  {selectedCliente ? "Salvar" : "Criar"}
+                  {selectedFornecedor ? "Salvar" : "Criar"}
                 </Button>
               </Form.Item>
             </FormikForm>
@@ -298,4 +280,4 @@ const TabelaClientes: React.FC = () => {
   );
 };
 
-export default TabelaClientes;
+export default TabelaFornecedores;

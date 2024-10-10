@@ -49,7 +49,7 @@ pre {
 html,
 body {
   height: 100%;
-  margin: 0;
+  margin: 0; /* Remover a margem do body */
   padding: 0;
 }
 
@@ -113,6 +113,11 @@ main {
 /* Força os elementos HTML5 a terem comportamento de bloco */
 summary {
   display: list-item;
+}
+
+/* Garantia extra para remover a margem do body */
+body {
+  margin: 0 !important; /* Garante que a margem seja removida */
 }
 
 /* Garanta que o root do app sempre tenha espaço disponível */

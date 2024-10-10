@@ -13,13 +13,10 @@ const validationSchema = Yup.object().shape({
 
 const CadastroCategoria: React.FC = () => {
   const handleSubmit = async (values: any) => {
-    console.log("Valores enviados:", values); // Verifique os dados aqui
     try {
       await criarCategoria(values);
-      alert("Categoria criada com sucesso!");
     } catch (error: any) {
       console.error("Erro ao criar categoria:", error);
-      alert(error.message);
     }
   };
 
@@ -28,7 +25,7 @@ const CadastroCategoria: React.FC = () => {
       <Title level={2}>Cadastro de Categoria</Title>
 
       <Formik
-        initialValues={{ descricao: "", criadorId: 1 }} // Valor inicial do criadorId
+        initialValues={{ descricao: "", criadorId: 1 }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
@@ -58,8 +55,7 @@ const CadastroCategoria: React.FC = () => {
               />
             </Form.Item>
 
-            {/* Campo oculto para criadorId (ajuste se necessário) */}
-            <input type="hidden" name="criadorId" value={values.criadorId} />
+            <Input type="hidden" name="criadorId" value={values.criadorId} />
 
             <Form.Item>
               <Button type="primary" htmlType="submit">

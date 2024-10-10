@@ -21,23 +21,23 @@ export const Navbar: React.FC = () => {
         </Menu.Item>
 
         <Menu.Item key="4">
-          <Link to="/page3">Fornecedor</Link>
+          <Link to="/fornecedor">Fornecedor</Link>
         </Menu.Item>
 
         <Menu.Item key="5">
-          <Link to="/page4">Pedido</Link>
+          <Link to="/pedido">Pedido</Link>
         </Menu.Item>
 
         <Menu.Item key="6">
-          <Link to="/page5">Produto</Link>
+          <Link to="/produto">Produto</Link>
         </Menu.Item>
 
         <Menu.Item key="7">
-          <Link to="/page6">Produto e Fornecedores</Link>
+          <Link to="/produtos&fornecedores">Produto e Fornecedores</Link>
         </Menu.Item>
 
         <Menu.Item key="8">
-          <Link to="/page7">Movimentação</Link>
+          <Link to="/movimentacao">Movimentação</Link>
         </Menu.Item>
       </Menu>
     </Header>

@@ -7,6 +7,7 @@ import {
   Modal,
   Form,
   Input,
+  Select,
   notification,
 } from "antd";
 import {
@@ -15,30 +16,39 @@ import {
   atualizarProduto,
   criarProduto,
 } from "../../service/produto_service";
+import { procurarTodosCategorias } from "../../service/categoria_service";
 import { Formik, Form as FormikForm, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
 const { Title } = Typography;
+const { Option } = Select; // Adicione o Option do Select
 
 const validationSchema = Yup.object().shape({
-  descricao: Yup.string().required("Descrição é obrigatória!"),
-  preco: Yup.number()
-    .positive("Preço deve ser um número positivo!")
-    .required("Preço é obrigatório!"),
+  unMedida: Yup.string().required("Unidade de medida é obrigatória!"),
+  valorUn: Yup.number()
+    .required("Valor unitário é obrigatório!")
+    .positive("O valor deve ser positivo!"),
+  categoriaId: Yup.number()
+    .required("ID da categoria é obrigatório!")
+    .positive("O ID da categoria deve ser positivo!"),
   quantidade: Yup.number()
-    .integer("Quantidade deve ser um número inteiro!")
-    .min(0, "Quantidade não pode ser negativa!")
-    .required("Quantidade é obrigatória!"),
+    .required("Quantidade é obrigatória!")
+    .min(0, "A quantidade não pode ser negativa!"),
+  criadorId: Yup.number()
+    .required("ID do criador é obrigatório!")
+    .positive("O ID do criador deve ser positivo!"),
 });
 
 const TabelaProdutos: React.FC = () => {
   const [produtos, setProdutos] = useState<any[]>([]);
+  const [categorias, setCategorias] = useState<any[]>([]); // Estado para categorias
   const [loading, setLoading] = useState<boolean>(true);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedProduto, setSelectedProduto] = useState<any>(null);
 
   useEffect(() => {
     listarProdutos();
+    listarCategorias(); // Chamada para listar categorias
   }, []);
 
   const listarProdutos = async () => {
@@ -54,6 +64,19 @@ const TabelaProdutos: React.FC = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const listarCategorias = async () => {
+    try {
+      const data = await procurarTodosCategorias();
+      setCategorias(data);
+    } catch (error: any) {
+      console.error("Erro ao listar categorias:", error);
+      notification.error({
+        message: "Erro ao listar categorias",
+        description: "Alguma coisa deu errado, tente novamente.",
+      });
     }
   };
 
@@ -85,12 +108,21 @@ const TabelaProdutos: React.FC = () => {
   };
 
   const handleModalOk = async (values: any) => {
+    const data = {
+      descricao: values.descricao,
+      quantidade: values.quantidade,
+      unMedida: values.unMedida,
+      valorUn: values.valorUn,
+      criadorId: values.criadorId,
+      categoriaId: parseInt(values.categoriaId),
+    };
+
     try {
       if (selectedProduto) {
-        await atualizarProduto(selectedProduto.id, values);
+        await atualizarProduto(selectedProduto.id, data);
         setProdutos(
           produtos.map((p) =>
-            p.id === selectedProduto.id ? { ...p, ...values } : p
+            p.id === selectedProduto.id ? { ...p, ...data } : p
           )
         );
         notification.success({
@@ -98,7 +130,7 @@ const TabelaProdutos: React.FC = () => {
           description: "O produto foi atualizado com sucesso.",
         });
       } else {
-        const newProduto = await criarProduto(values);
+        const newProduto = await criarProduto(data);
         setProdutos([...produtos, newProduto]);
         notification.success({
           message: "Produto criado com sucesso",
@@ -127,15 +159,24 @@ const TabelaProdutos: React.FC = () => {
       key: "descricao",
     },
     {
-      title: "Preço",
-      dataIndex: "preco",
-      key: "preco",
-      render: (preco: number) => `R$ ${preco.toFixed(2)}`,
+      title: "Unidade de Medida",
+      dataIndex: "unMedida",
+      key: "unMedida",
+    },
+    {
+      title: "Valor Unitário",
+      dataIndex: "valorUn",
+      key: "valorUn",
     },
     {
       title: "Quantidade",
       dataIndex: "quantidade",
       key: "quantidade",
+    },
+    {
+      title: "Categoria",
+      dataIndex: "categoriaId",
+      key: "categoriaId",
     },
     {
       title: "Ações",
@@ -212,26 +253,19 @@ const TabelaProdutos: React.FC = () => {
       >
         <Formik
           initialValues={{
-            nome: selectedProduto ? selectedProduto.nome : "",
             descricao: selectedProduto ? selectedProduto.descricao : "",
-            preco: selectedProduto ? selectedProduto.preco : "",
+            unMedida: selectedProduto ? selectedProduto.unMedida : "",
+            valorUn: selectedProduto ? selectedProduto.valorUn : "",
             quantidade: selectedProduto ? selectedProduto.quantidade : "",
-            criadorId: 1,
+            categoriaId: selectedProduto ? selectedProduto.categoriaId : "",
+            criadorId: 1, // Adicione este campo conforme necessário
           }}
           validationSchema={validationSchema}
           onSubmit={handleModalOk}
         >
           {({ handleSubmit }) => (
             <FormikForm onSubmit={handleSubmit}>
-              <Form.Item label="Nome" required>
-                <Field name="nome">
-                  {({ field, form }: any) => <Input {...field} />}
-                </Field>
-                <ErrorMessage name="nome">
-                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
-                </ErrorMessage>
-              </Form.Item>
-              <Form.Item label="Descrição" required>
+              <Form.Item label="Descrição">
                 <Field name="descricao">
                   {({ field, form }: any) => <Input {...field} />}
                 </Field>
@@ -239,11 +273,21 @@ const TabelaProdutos: React.FC = () => {
                   {(msg) => <div style={{ color: "red" }}>{msg}</div>}
                 </ErrorMessage>
               </Form.Item>
-              <Form.Item label="Preço" required>
-                <Field name="preco">
-                  {({ field, form }: any) => <Input type="number" {...field} />}
+              <Form.Item label="Unidade de Medida" required>
+                <Field name="unMedida">
+                  {({ field, form }: any) => <Input {...field} />}
                 </Field>
-                <ErrorMessage name="preco">
+                <ErrorMessage name="unMedida">
+                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
+                </ErrorMessage>
+              </Form.Item>
+              <Form.Item label="Valor Unitário" required>
+                <Field name="valorUn">
+                  {({ field, form }: any) => (
+                    <Input type="number" step="0.01" {...field} />
+                  )}
+                </Field>
+                <ErrorMessage name="valorUn">
                   {(msg) => <div style={{ color: "red" }}>{msg}</div>}
                 </ErrorMessage>
               </Form.Item>
@@ -255,6 +299,29 @@ const TabelaProdutos: React.FC = () => {
                   {(msg) => <div style={{ color: "red" }}>{msg}</div>}
                 </ErrorMessage>
               </Form.Item>
+              <Form.Item label="Categoria" required>
+                <Field name="categoriaId">
+                  {({ field, form }: any) => (
+                    <Select
+                      {...field}
+                      placeholder="Selecione uma categoria"
+                      onChange={(value) =>
+                        form.setFieldValue("categoriaId", value)
+                      }
+                    >
+                      {categorias.map((categoria) => (
+                        <Option key={categoria.id} value={categoria.descricao}>
+                          {categoria.descricao}
+                        </Option>
+                      ))}
+                    </Select>
+                  )}
+                </Field>
+                <ErrorMessage name="categoriaId">
+                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
+                </ErrorMessage>
+              </Form.Item>
+
               <Form.Item>
                 <Button type="primary" htmlType="submit">
                   {selectedProduto ? "Salvar" : "Criar"}

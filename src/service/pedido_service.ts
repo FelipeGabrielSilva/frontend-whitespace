@@ -11,7 +11,7 @@ export const criarPedido = async (PedidoData: any) => {
 
 export const procurarTodosPedidos = async () => {
   try {
-    const response = await api.get("/pedido.");
+    const response = await api.get("/pedido");
     return response.data;
   } catch (error: any) {
     throw new Error(

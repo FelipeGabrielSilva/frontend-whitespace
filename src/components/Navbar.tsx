@@ -1,4 +1,4 @@
-import { Layout, Menu } from "antd";
+import { Image, Layout, Menu } from "antd";
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -7,9 +7,26 @@ const { Header } = Layout;
 export const Navbar: React.FC = () => {
   return (
     <Header>
-      <Menu theme="dark" mode="horizontal" defaultSelectedKeys={["1"]}>
-        <Menu.Item key="1">
-          <Link to="/">Home</Link>
+      <Menu
+        theme="dark"
+        mode="horizontal"
+        defaultSelectedKeys={["1"]}
+        style={{ display: "flex", alignItems: "center" }}
+      >
+        <Menu.Item
+          key="1"
+          style={{ display: "flex", alignItems: "center", height: "64px" }}
+        >
+          <Link
+            to="/"
+            style={{ display: "flex", height: "100%" }}
+          >
+            <img
+              src="/img/white-space-logo.svg"
+              alt="Logo"
+              style={{ width: " 180px" }}
+            />
+          </Link>
         </Menu.Item>
 
         <Menu.Item key="2">

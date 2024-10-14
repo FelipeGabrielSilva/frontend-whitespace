@@ -5,7 +5,6 @@ export const criarCliente = async (ClienteData: any) => {
     const response = await api.post("/cliente/registro", ClienteData);
     return response.data;
   } catch (error: any) {
-    //console.error("Erro ao criar Cliente:", error);
     throw new Error(error?.response?.data?.message || "Erro ao criar cliente");
   }
 };

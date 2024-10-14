@@ -1,34 +1,27 @@
-import React, { useEffect, useState } from "react";
 import {
-  Table,
-  Typography,
-  Spin,
   Button,
+  notification,
+  Spin,
+  Table,
   Modal,
   Form,
   Input,
-  notification,
+  Typography,
 } from "antd";
+import React, { useEffect, useState } from "react";
 import {
   procurarTodosCategorias,
   removerCategoria,
-  atualizarCategoria,
-  criarCategoria,
+  atualizarCategoria, // Importa o serviço para atualizar a categoria
 } from "../../service/categoria_service";
-import { Formik, Form as FormikForm, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
 
 const { Title } = Typography;
-
-const validationSchema = Yup.object().shape({
-  descricao: Yup.string().required("Descrição é obrigatória!"),
-});
 
 const TabelaCategorias: React.FC = () => {
   const [categorias, setCategorias] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [selectedCategoria, setSelectedCategoria] = useState<any>(null);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [currentCategoria, setCurrentCategoria] = useState<any>(null);
 
   useEffect(() => {
     listarCategorias();
@@ -68,42 +61,37 @@ const TabelaCategorias: React.FC = () => {
   };
 
   const handleEdit = (categoria: any) => {
-    setSelectedCategoria(categoria);
-    setModalVisible(true);
+    setCurrentCategoria(categoria);
+    setIsModalVisible(true);
   };
 
-  const handleNewCategory = () => {
-    setSelectedCategoria(null);
-    setModalVisible(true);
-  };
-
-  const handleModalOk = async (values: any) => {
+  const handleUpdate = async (values: any) => {
     try {
-      if (selectedCategoria) {
-        await atualizarCategoria(selectedCategoria.id, values);
-        setCategorias(
-          categorias.map((c) =>
-            c.id === selectedCategoria.id ? { ...c, ...values } : c
-          )
-        );
-        notification.success({
-          message: "Categoria atualizada com sucesso",
-          description: "A categoria foi atualizada com sucesso.",
-        });
-      } else {
-        const newCategoria = await criarCategoria(values);
-        setCategorias([...categorias, newCategoria]);
-        notification.success({
-          message: "Categoria criada com sucesso",
-          description: "A nova categoria foi criada com sucesso.",
-        });
-      }
-      setModalVisible(false);
+      // Chama o serviço de atualização com os dados novos
+      const updatedCategoria = await atualizarCategoria(
+        currentCategoria.id,
+        values
+      );
+
+      // Atualiza a lista local com a categoria editada
+      setCategorias((prevCategorias) =>
+        prevCategorias.map((categoria) =>
+          categoria.id === updatedCategoria.id ? updatedCategoria : categoria
+        )
+      );
+
+      setIsModalVisible(false);
+      setCurrentCategoria(null);
+
+      notification.success({
+        message: "Categoria atualizada com sucesso",
+        description: "As alterações foram salvas com sucesso.",
+      });
     } catch (error: any) {
-      console.error("Erro ao atualizar ou criar categoria:", error);
+      console.error("Erro ao atualizar categoria:", error);
       notification.error({
-        message: "Erro ao atualizar ou criar categoria",
-        description: error.message,
+        message: "Erro ao atualizar categoria",
+        description: "Não foi possível atualizar a categoria.",
       });
     }
   };
@@ -190,49 +178,34 @@ const TabelaCategorias: React.FC = () => {
         }}
       >
         <Title level={2}>Categorias</Title>
-        <Button type="primary" onClick={handleNewCategory}>
-          Nova categoria
-        </Button>
       </div>
       <div style={{ border: "1px solid #cdcdcd ", borderRadius: 8 }}>
         <Table dataSource={categorias} columns={columns} rowKey="id" />
       </div>
 
+      {/* Modal para editar a categoria */}
       <Modal
-        title={selectedCategoria ? "Editar Categoria" : "Criar Categoria"}
-        open={modalVisible}
-        onCancel={() => {
-          setModalVisible(false);
-          setSelectedCategoria(null);
-        }}
+        title="Editar Categoria"
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
         footer={null}
       >
-        <Formik
-          initialValues={{
-            descricao: selectedCategoria ? selectedCategoria.descricao : "",
-            criadorId: 1,
-          }}
-          validationSchema={validationSchema}
-          onSubmit={handleModalOk}
-        >
-          {({ handleSubmit }) => (
-            <FormikForm onSubmit={handleSubmit}>
-              <Form.Item label="Descrição" required>
-                <Field name="descricao">
-                  {({ field, form }: any) => <Input {...field} />}
-                </Field>
-                <ErrorMessage name="descricao">
-                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
-                </ErrorMessage>
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  {selectedCategoria ? "Salvar" : "Criar"}
-                </Button>
-              </Form.Item>
-            </FormikForm>
-          )}
-        </Formik>
+        <Form initialValues={currentCategoria} onFinish={handleUpdate}>
+          <Form.Item
+            label="Descrição"
+            name="descricao"
+            rules={[
+              { required: true, message: "Por favor, insira a descrição" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Salvar
+            </Button>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );

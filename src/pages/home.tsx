@@ -46,18 +46,15 @@ const Home: React.FC = () => {
             </Link>
           </Col>
           <Col span={8}>
-            <Link to="/tabela=produto&fornecedores">
-              <Card title="PRODUTO E FORNECEDORES" bordered={false}>
+            <Link to="/tabela=item&pedido">
+              <Card title="ITENS DE PEDIDO" bordered={false}>
                 Conteúdo da Página 6
               </Card>
             </Link>
           </Col>
           <Col span={8}>
-            <Link to="/tabela=movimentacao">
-              <Card
-                title="MOVIMENTAÇÃO ENTRE PRODUTOS E PEDIDOS"
-                bordered={false}
-              >
+            <Link to="/tabela=estoque">
+              <Card title="ESTOQUE" bordered={false}>
                 Conteúdo da Página 6
               </Card>
             </Link>

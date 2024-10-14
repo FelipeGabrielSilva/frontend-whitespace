@@ -1,33 +1,29 @@
 import React, { useEffect, useState } from "react";
 import {
+  Button,
+  notification,
+  Spin,
   Table,
   Typography,
-  Spin,
-  Button,
   Modal,
   Form,
   Input,
-  notification,
+  Select,
 } from "antd";
 import {
-  atualizarPedido,
-  criarPedido,
   procurarTodosPedidos,
   removerPedido,
+  atualizarPedido,
 } from "../../service/pedido_service";
-import { Formik, Form as FormikForm, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
 
 const { Title } = Typography;
 
-const validationSchema = Yup.object().shape({
-  produtoId: Yup.number().required("Produto é obrigatório!"),
-  quantidade: Yup.number()
-    .integer("Quantidade deve ser um número inteiro!")
-    .min(1, "Quantidade deve ser pelo menos 1!")
-    .required("Quantidade é obrigatória!"),
-  clienteNome: Yup.string().required("Nome do cliente é obrigatório!"),
-});
+enum StatusPedido {
+  PENDENTE = "PENDENTE",
+  EM_ANDAMENTO = "EM ANDAMENTO",
+  FINALIZADO = "FINALIZADO",
+  CANCELADO = "CANCELADO",
+}
 
 const TabelaPedidos: React.FC = () => {
   const [pedidos, setPedidos] = useState<any[]>([]);
@@ -77,39 +73,27 @@ const TabelaPedidos: React.FC = () => {
     setModalVisible(true);
   };
 
-  const handleNewPedido = () => {
-    setSelectedPedido(null);
-    setModalVisible(true);
-  };
-
-  const handleModalOk = async (values: any) => {
+  const handleUpdate = async (values: any) => {
     try {
-      if (selectedPedido) {
-        await atualizarPedido(selectedPedido.id, values);
-        setPedidos(
-          pedidos.map((p) =>
-            p.id === selectedPedido.id ? { ...p, ...values } : p
-          )
-        );
-        notification.success({
-          message: "Pedido atualizado com sucesso",
-          description: "O pedido foi atualizado com sucesso.",
-        });
-      } else {
-        const newPedido = await criarPedido(values);
-        setPedidos([...pedidos, newPedido]);
-        notification.success({
-          message: "Pedido criado com sucesso",
-          description: "O novo pedido foi criado com sucesso.",
-        });
-      }
-      setModalVisible(false);
+      await atualizarPedido(selectedPedido.id, values);
+      setPedidos(
+        pedidos.map((pedido) =>
+          pedido.id === selectedPedido.id ? { ...pedido, ...values } : pedido
+        )
+      );
+      notification.success({
+        message: "Pedido atualizado com sucesso",
+        description: "O pedido foi atualizado com sucesso.",
+      });
     } catch (error: any) {
-      console.error("Erro ao atualizar ou criar pedido:", error);
+      console.error("Erro ao atualizar pedido:", error);
       notification.error({
-        message: "Erro ao atualizar ou criar pedido",
+        message: "Erro ao atualizar pedido",
         description: error.message,
       });
+    } finally {
+      setModalVisible(false);
+      setSelectedPedido(null);
     }
   };
 
@@ -120,19 +104,19 @@ const TabelaPedidos: React.FC = () => {
       key: "id",
     },
     {
-      title: "Produto ID",
-      dataIndex: "produtoId",
-      key: "produtoId",
+      title: "Cliente ID",
+      dataIndex: "clienteId",
+      key: "clienteId",
     },
     {
-      title: "Quantidade",
-      dataIndex: "quantidade",
-      key: "quantidade",
+      title: "Data",
+      dataIndex: "dataPedido",
+      key: "dataPedido",
     },
     {
-      title: "Cliente",
-      dataIndex: "clienteNome",
-      key: "clienteNome",
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
     },
     {
       title: "Ações",
@@ -190,67 +174,49 @@ const TabelaPedidos: React.FC = () => {
         }}
       >
         <Title level={2}>Pedidos</Title>
-        <Button type="primary" onClick={handleNewPedido}>
-          Novo Pedido
-        </Button>
       </div>
-      <div style={{ border: "1px solid #cdcdcd ", borderRadius: 8 }}>
+      <div style={{ border: "1px solid #cdcdcd", borderRadius: 8 }}>
         <Table dataSource={pedidos} columns={columns} rowKey="id" />
       </div>
 
       <Modal
-        title={selectedPedido ? "Editar Pedido" : "Criar Pedido"}
-        open={modalVisible}
-        onCancel={() => {
-          setModalVisible(false);
-          setSelectedPedido(null);
-        }}
+        title="Editar Pedido"
+        visible={modalVisible}
+        onCancel={() => setModalVisible(false)}
         footer={null}
       >
-        <Formik
+        <Form
           initialValues={{
-            produtoId: selectedPedido ? selectedPedido.produtoId : "",
-            quantidade: selectedPedido ? selectedPedido.quantidade : "",
-            clienteNome: selectedPedido ? selectedPedido.clienteNome : "",
-            criadorId: 1,
+            clienteNome: selectedPedido?.clienteNome,
+            status: selectedPedido?.status,
           }}
-          validationSchema={validationSchema}
-          onSubmit={handleModalOk}
+          onFinish={handleUpdate}
         >
-          {({ handleSubmit }) => (
-            <FormikForm onSubmit={handleSubmit}>
-              <Form.Item label="Produto ID" required>
-                <Field name="produtoId">
-                  {({ field, form }: any) => <Input {...field} />}
-                </Field>
-                <ErrorMessage name="produtoId">
-                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
-                </ErrorMessage>
-              </Form.Item>
-              <Form.Item label="Quantidade" required>
-                <Field name="quantidade">
-                  {({ field, form }: any) => <Input type="number" {...field} />}
-                </Field>
-                <ErrorMessage name="quantidade">
-                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
-                </ErrorMessage>
-              </Form.Item>
-              <Form.Item label="Nome do Cliente" required>
-                <Field name="clienteNome">
-                  {({ field, form }: any) => <Input {...field} />}
-                </Field>
-                <ErrorMessage name="clienteNome">
-                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
-                </ErrorMessage>
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  {selectedPedido ? "Salvar" : "Criar"}
-                </Button>
-              </Form.Item>
-            </FormikForm>
-          )}
-        </Formik>
+          <Form.Item
+            label="Status"
+            name="status"
+            rules={[{ required: true, message: "Status é obrigatório!" }]}
+          >
+            <Select>
+              {Object.values(StatusPedido).map((status) => (
+                <Select.Option key={status} value={status}>
+                  {status}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Atualizar
+            </Button>
+            <Button
+              onClick={() => setModalVisible(false)}
+              style={{ marginLeft: 8 }}
+            >
+              Cancelar
+            </Button>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );

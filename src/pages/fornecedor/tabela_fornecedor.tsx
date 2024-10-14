@@ -1,17 +1,21 @@
-import React, { useEffect, useState } from "react";
 import {
-  Table,
-  Typography,
-  Spin,
   Button,
-  Modal,
   Form,
   Input,
+  Modal,
   notification,
+  Spin,
+  Table,
+  Typography,
 } from "antd";
-import { atualizarFornecedor, criarFornecedor, procurarTodosFornecedores, removerFornecedor } from "../../service/fornecedor_service";
-import { Formik, Form as FormikForm, Field, ErrorMessage } from "formik";
+import { ErrorMessage, Field, Formik, Form as FormikForm } from "formik";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
+import {
+  atualizarFornecedor,
+  procurarTodosFornecedores,
+  removerFornecedor,
+} from "../../service/fornecedor_service";
 
 const { Title } = Typography;
 
@@ -72,38 +76,37 @@ const TabelaFornecedores: React.FC = () => {
     setModalVisible(true);
   };
 
-  const handleNewFornecedor = () => {
-    setSelectedFornecedor(null);
-    setModalVisible(true);
-  };
+  const handleUpdate = async (values: any) => {
+    const data = {
+      nome: values.nome,
+      cnpj: values.cnpj,
+      telefone: values.telefone,
+      email: values.email,
+    };
 
-  const handleModalOk = async (values: any) => {
     try {
-      if (selectedFornecedor) {
-        await atualizarFornecedor(selectedFornecedor.id, values);
-        setFornecedores(
-          fornecedores.map((f) =>
-            f.id === selectedFornecedor.id ? { ...f, ...values } : f
-          )
-        );
-        notification.success({
-          message: "Fornecedor atualizado com sucesso",
-          description: "O fornecedor foi atualizado com sucesso.",
-        });
-      } else {
-        const newFornecedor = await criarFornecedor(values);
-        setFornecedores([...fornecedores, newFornecedor]);
-        notification.success({
-          message: "Fornecedor criado com sucesso",
-          description: "O novo fornecedor foi criado com sucesso.",
-        });
-      }
+      await atualizarFornecedor(selectedFornecedor.id, data);
+      setFornecedores((prevFornecedores) =>
+        prevFornecedores.map((fornecedor) =>
+          fornecedor.id === selectedFornecedor.id
+            ? { ...fornecedor, ...values }
+            : fornecedor
+        )
+      );
+
+      notification.success({
+        message: "Fornecedor atualizado com sucesso",
+        description:
+          "As informações do fornecedor foram atualizadas com sucesso.",
+      });
+
       setModalVisible(false);
+      setSelectedFornecedor(null);
     } catch (error: any) {
-      console.error("Erro ao atualizar ou criar fornecedor:", error);
+      console.error("Erro ao atualizar fornecedor:", error);
       notification.error({
-        message: "Erro ao atualizar ou criar fornecedor",
-        description: error.message,
+        message: "Erro ao atualizar fornecedor",
+        description: "Não foi possível atualizar o fornecedor.",
       });
     }
   };
@@ -205,76 +208,56 @@ const TabelaFornecedores: React.FC = () => {
         }}
       >
         <Title level={2}>Fornecedores</Title>
-        <Button type="primary" onClick={handleNewFornecedor}>
-          Novo fornecedor
-        </Button>
       </div>
       <div style={{ border: "1px solid #cdcdcd ", borderRadius: 8 }}>
         <Table dataSource={fornecedores} columns={columns} rowKey="id" />
       </div>
 
       <Modal
-        title={selectedFornecedor ? "Editar Fornecedor" : "Criar Fornecedor"}
-        open={modalVisible}
-        onCancel={() => {
-          setModalVisible(false);
-          setSelectedFornecedor(null);
-        }}
+        title="Editar Fornecedor"
+        visible={modalVisible}
+        onCancel={() => setModalVisible(false)}
         footer={null}
       >
-        <Formik
-          initialValues={{
-            nome: selectedFornecedor ? selectedFornecedor.nome : "",
-            cnpj: selectedFornecedor ? selectedFornecedor.cnpj : "",
-            telefone: selectedFornecedor ? selectedFornecedor.telefone : "",
-            email: selectedFornecedor ? selectedFornecedor.email : "",
-            criadorId: 1
-          }}
-          validationSchema={validationSchema}
-          onSubmit={handleModalOk}
-        >
-          {({ handleSubmit }) => (
-            <FormikForm onSubmit={handleSubmit}>
-              <Form.Item label="Nome" required>
-                <Field name="nome">
-                  {({ field, form }: any) => <Input {...field} />}
-                </Field>
-                <ErrorMessage name="nome">
-                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
-                </ErrorMessage>
-              </Form.Item>
-              <Form.Item label="CNPJ" required>
-                <Field name="cnpj">
-                  {({ field, form }: any) => <Input {...field} />}
-                </Field>
-                <ErrorMessage name="cnpj">
-                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
-                </ErrorMessage>
-              </Form.Item>
-              <Form.Item label="Telefone" required>
-                <Field name="telefone">
-                  {({ field, form }: any) => <Input {...field} />}
-                </Field>
-                <ErrorMessage name="telefone">
-                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
-                </ErrorMessage>
-              </Form.Item>
-              <Form.Item label="Email" required>
-                <Field name="email">
-                  {({ field, form }: any) => <Input {...field} />}
-                </Field>
-                <ErrorMessage name="email">
-                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
-                </ErrorMessage>
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  {selectedFornecedor ? "Salvar" : "Criar"}
+        {selectedFornecedor && (
+          <Formik
+            initialValues={selectedFornecedor}
+            validationSchema={validationSchema}
+            onSubmit={handleUpdate}
+          >
+            {({ isSubmitting }) => (
+              <FormikForm>
+                <Form.Item label="Nome">
+                  <Field name="nome" as={Input} />
+                  <ErrorMessage name="nome" component="div" />
+                </Form.Item>
+
+                <Form.Item label="CNPJ">
+                  <Field name="cnpj" as={Input} />
+                  <ErrorMessage name="cnpj" component="div" />
+                </Form.Item>
+
+                <Form.Item label="Telefone">
+                  <Field name="telefone" as={Input} />
+                  <ErrorMessage name="telefone" component="div" />
+                </Form.Item>
+
+                <Form.Item label="E-mail">
+                  <Field name="email" as={Input} />
+                  <ErrorMessage name="email" component="div" />
+                </Form.Item>
+
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  disabled={isSubmitting}
+                >
+                  Salvar
                 </Button>
-              </Form.Item>
-            </FormikForm>
-          )}
-        </Formik>
+              </FormikForm>
+            )}
+          </Formik>
+        )}
       </Modal>
     </div>
   );

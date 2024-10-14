@@ -17,10 +17,7 @@ export const Navbar: React.FC = () => {
           key="1"
           style={{ display: "flex", alignItems: "center", height: "64px" }}
         >
-          <Link
-            to="/"
-            style={{ display: "flex", height: "100%" }}
-          >
+          <Link to="/" style={{ display: "flex", height: "100%" }}>
             <img
               src="/img/white-space-logo.svg"
               alt="Logo"
@@ -34,7 +31,7 @@ export const Navbar: React.FC = () => {
         </Menu.Item>
 
         <Menu.Item key="3">
-          <Link to="/page2">Cliente</Link>
+          <Link to="/cliente">Cliente</Link>
         </Menu.Item>
 
         <Menu.Item key="4">
@@ -47,14 +44,6 @@ export const Navbar: React.FC = () => {
 
         <Menu.Item key="6">
           <Link to="/produto">Produto</Link>
-        </Menu.Item>
-
-        <Menu.Item key="7">
-          <Link to="/produtos&fornecedores">Produto e Fornecedores</Link>
-        </Menu.Item>
-
-        <Menu.Item key="8">
-          <Link to="/movimentacao">Movimentação</Link>
         </Menu.Item>
       </Menu>
     </Header>

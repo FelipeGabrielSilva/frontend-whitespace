@@ -1,22 +1,12 @@
+import { Button, Form, Input, Modal, notification, Spin, Table, Typography } from "antd";
+import { ErrorMessage, Field, Formik, Form as FormikForm } from "formik";
 import React, { useEffect, useState } from "react";
+import * as Yup from "yup";
 import {
-  Table,
-  Typography,
-  Spin,
-  Button,
-  Modal,
-  Form,
-  Input,
-  notification,
-} from "antd";
-import {
+  atualizarCliente,
   procurarTodosClientes,
   removerCliente,
-  atualizarCliente,
-  criarCliente,
 } from "../../service/cliente_service";
-import { Formik, Form as FormikForm, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
 
 const { Title } = Typography;
 
@@ -76,38 +66,38 @@ const TabelaClientes: React.FC = () => {
     setModalVisible(true);
   };
 
-  const handleNewCliente = () => {
-    setSelectedCliente(null);
-    setModalVisible(true);
-  };
+  const handleUpdate = async (values: any) => {
+    const data = {
+      nome: values.nome,
+      cnpjCpf: values.cnpjCpf,
+      endereco: values.endereco,
+      telefone: values.telefone,
+      email: values.email,
+    };
 
-  const handleModalOk = async (values: any) => {
     try {
-      if (selectedCliente) {
-        await atualizarCliente(selectedCliente.id, values);
-        setClientes(
-          clientes.map((c) =>
-            c.id === selectedCliente.id ? { ...c, ...values } : c
-          )
-        );
-        notification.success({
-          message: "Cliente atualizado com sucesso",
-          description: "O cliente foi atualizado com sucesso.",
-        });
-      } else {
-        const newCliente = await criarCliente(values);
-        setClientes([...clientes, newCliente]);
-        notification.success({
-          message: "Cliente criado com sucesso",
-          description: "O novo cliente foi criado com sucesso.",
-        });
-      }
+      await atualizarCliente(selectedCliente.id, data);
+
+      setClientes((prevClientes) =>
+        prevClientes.map((cliente) =>
+          cliente.id === selectedCliente.id
+            ? { ...cliente, ...values }
+            : cliente
+        )
+      );
+
       setModalVisible(false);
+      setSelectedCliente(null);
+
+      notification.success({
+        message: "Cliente atualizado com sucesso",
+        description: "As informações do cliente foram atualizadas com sucesso.",
+      });
     } catch (error: any) {
-      console.error("Erro ao atualizar ou criar cliente:", error);
+      console.error("Erro ao atualizar cliente:", error);
       notification.error({
-        message: "Erro ao atualizar ou criar cliente",
-        description: error.message,
+        message: "Erro ao atualizar cliente",
+        description: "Não foi possível atualizar o cliente.",
       });
     }
   };
@@ -129,11 +119,6 @@ const TabelaClientes: React.FC = () => {
       key: "cnpjCpf",
     },
     {
-      title: "Endereço",
-      dataIndex: "endereco",
-      key: "endereco",
-    },
-    {
       title: "Telefone",
       dataIndex: "telefone",
       key: "telefone",
@@ -147,16 +132,6 @@ const TabelaClientes: React.FC = () => {
       title: "Criado Em",
       dataIndex: "criadoEm",
       key: "criadoEm",
-    },
-    {
-      title: "Atualizado Em",
-      dataIndex: "atualizadoEm",
-      key: "atualizadoEm",
-    },
-    {
-      title: "Criador ID",
-      dataIndex: "criadorId",
-      key: "criadorId",
     },
     {
       title: "Ações",
@@ -213,86 +188,63 @@ const TabelaClientes: React.FC = () => {
           alignItems: "center",
         }}
       >
-        <Title level={2}>Clientes</Title>
-        <Button type="primary" onClick={handleNewCliente}>
-          Novo cliente
-        </Button>
+        <Title level={2}>Cliente</Title>
       </div>
       <div style={{ border: "1px solid #cdcdcd ", borderRadius: 8 }}>
         <Table dataSource={clientes} columns={columns} rowKey="id" />
       </div>
 
       <Modal
-        title={selectedCliente ? "Editar Cliente" : "Criar Cliente"}
-        open={modalVisible}
-        onCancel={() => {
-          setModalVisible(false);
-          setSelectedCliente(null);
-        }}
+        title="Editar cliente"
+        visible={modalVisible}
+        onCancel={() => setModalVisible(false)}
         footer={null}
       >
-        <Formik
-          initialValues={{
-            nome: selectedCliente ? selectedCliente.nome : "",
-            cnpjCpf: selectedCliente ? selectedCliente.cnpjCpf : "",
-            endereco: selectedCliente ? selectedCliente.endereco : "",
-            telefone: selectedCliente ? selectedCliente.telefone : "",
-            email: selectedCliente ? selectedCliente.email : "",
-            criadorId: 1,
-          }}
-          validationSchema={validationSchema}
-          onSubmit={handleModalOk}
-        >
-          {({ handleSubmit }) => (
-            <FormikForm onSubmit={handleSubmit}>
-              <Form.Item label="Nome" required>
-                <Field name="nome">
-                  {({ field, form }: any) => <Input {...field} />}
-                </Field>
-                <ErrorMessage name="nome">
-                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
-                </ErrorMessage>
-              </Form.Item>
-              <Form.Item label="CNPJ/CPF" required>
-                <Field name="cnpjCpf">
-                  {({ field, form }: any) => <Input {...field} />}
-                </Field>
-                <ErrorMessage name="cnpjCpf">
-                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
-                </ErrorMessage>
-              </Form.Item>
-              <Form.Item label="Endereço" required>
-                <Field name="endereco">
-                  {({ field, form }: any) => <Input {...field} />}
-                </Field>
-                <ErrorMessage name="endereco">
-                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
-                </ErrorMessage>
-              </Form.Item>
-              <Form.Item label="Telefone" required>
-                <Field name="telefone">
-                  {({ field, form }: any) => <Input {...field} />}
-                </Field>
-                <ErrorMessage name="telefone">
-                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
-                </ErrorMessage>
-              </Form.Item>
-              <Form.Item label="Email" required>
-                <Field name="email">
-                  {({ field, form }: any) => <Input {...field} />}
-                </Field>
-                <ErrorMessage name="email">
-                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
-                </ErrorMessage>
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  {selectedCliente ? "Salvar" : "Criar"}
+        {selectedCliente && (
+          <Formik
+            initialValues={selectedCliente}
+            validationSchema={validationSchema}
+            onSubmit={handleUpdate}
+          >
+            {({ isSubmitting }) => (
+              <FormikForm>
+                <Form.Item label="Nome">
+                  <Field name="nome" as={Input} />
+                  <ErrorMessage name="nome" />
+                </Form.Item>
+
+                <Form.Item label="CNPJ/CPF">
+                  <Field name="cnpjCpf" as={Input} />
+                  <ErrorMessage name="cnpjCpf" />
+                </Form.Item>
+
+                <Form.Item label="Endereço">
+                  <Field name="endereco" as={Input} />
+                  <ErrorMessage name="endereco" />
+                </Form.Item>
+
+                <Form.Item label="Telefone">
+                  <Field name="telefone" as={Input} />
+                  <ErrorMessage name="telefone" />
+                </Form.Item>
+
+                <Form.Item label="E-mail">
+                  <Field name="email" as={Input} />
+                  <ErrorMessage name="email" />
+                </Form.Item>
+
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={isSubmitting}
+                  style={{ marginTop: "10px" }}
+                >
+                  Salvar
                 </Button>
-              </Form.Item>
-            </FormikForm>
-          )}
-        </Formik>
+              </FormikForm>
+            )}
+          </Formik>
+        )}
       </Modal>
     </div>
   );

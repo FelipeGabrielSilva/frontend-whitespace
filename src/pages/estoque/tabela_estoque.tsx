@@ -35,9 +35,9 @@ const TabelaEstoque: React.FC = () => {
       key: "id",
     },
     {
-      title: "Produto Id",
-      dataIndex: "produtoId",
-      key: "produtoId",
+      title: "Produto",
+      dataIndex: ["produto", "descricao"],
+      key: "produto",
     },
     {
       title: "Tipo",

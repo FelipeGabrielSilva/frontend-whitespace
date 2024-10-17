@@ -132,8 +132,13 @@ const TabelaProdutos: React.FC = () => {
     },
     {
       title: "Unidade de Medida",
-      dataIndex: "unMedida",
-      key: "unMedida",
+      dataIndex: ["medida", "descricao"],
+      key: "medida",
+    },
+    {
+      title: "Preço de Compra",
+      dataIndex: "precoCompra",
+      key: "precoCompra",
     },
     {
       title: "Valor Unitário",
@@ -147,10 +152,9 @@ const TabelaProdutos: React.FC = () => {
     },
     {
       title: "Categoria",
-      dataIndex: "categoriaId",
-      key: "categoriaId",
-      render: (text: any) =>
-        categorias.find((cat) => cat.id === text)?.descricao || text,
+      dataIndex: ["categoria", "descricao"],
+      key: "categoria",
+      render: (text: string) => text || "Sem categoria",
     },
     {
       title: "Ações",

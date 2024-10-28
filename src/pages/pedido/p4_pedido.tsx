@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Form, Select, Button, Typography, Input, message } from "antd";
+import {
+  Form,
+  Select,
+  Button,
+  Typography,
+  Input,
+  message,
+  Divider,
+  Card,
+} from "antd";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { criarPedido } from "../../service/pedido_service";
@@ -9,14 +18,12 @@ import { procurarTodosProdutos } from "../../service/produto_service";
 const { Title } = Typography;
 const { Option } = Select;
 
-// Interface para o produto
 interface Produto {
   produtoId: number;
   quantidade: number;
   valorTotal: number;
 }
 
-// Interface para os dados do pedido
 interface CreatePedidoDto {
   clienteId: number;
   produtos: Produto[];
@@ -26,6 +33,7 @@ const CadastroPedido: React.FC = () => {
   const [clientes, setClientes] = useState<any[]>([]);
   const [produtos, setProdutos] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [valorTotal, setValorTotal] = useState(0);
 
   useEffect(() => {
     fetchClientes();
@@ -55,14 +63,17 @@ const CadastroPedido: React.FC = () => {
   };
 
   const handleSubmit = async (values: CreatePedidoDto) => {
+    
+
     try {
       await criarPedido(values);
-      message.success("Pedido criado com sucesso!"); // Mensagem de sucesso
+      message.success("Pedido criado com sucesso!");
     } catch (error: any) {
       console.error("Erro ao criar pedido:", error);
       message.error("Erro ao criar pedido");
     }
   };
+
 
   return (
     <div style={{ padding: 20 }}>
@@ -74,7 +85,7 @@ const CadastroPedido: React.FC = () => {
         <Formik
           initialValues={{
             clienteId: 0,
-            produtos: [] as Produto[], // Define o tipo do array de produtos corretamente
+            produtos: [] as Produto[],
           }}
           validationSchema={Yup.object().shape({
             clienteId: Yup.number().required("Cliente é obrigatório"),
@@ -143,9 +154,9 @@ const CadastroPedido: React.FC = () => {
                     );
                     if (produtoSelecionado) {
                       const newProduto: Produto = {
-                        produtoId: produtoSelecionado.id, 
+                        produtoId: produtoSelecionado.id,
                         quantidade: 1,
-                        valorTotal: produtoSelecionado.preco, 
+                        valorTotal: produtoSelecionado.preco,
                       };
                       setFieldValue("produtos", [
                         ...values.produtos,
@@ -168,18 +179,16 @@ const CadastroPedido: React.FC = () => {
                   onChange={(e) => {
                     const quantidade = Number(e.target.value);
                     if (quantidade >= 1 && values.produtos.length > 0) {
-                      // Atualiza a quantidade do último produto adicionado
                       const lastIndex = values.produtos.length - 1;
                       const updatedProdutos = [...values.produtos];
                       if (lastIndex >= 0) {
                         const produtoAtual = updatedProdutos[lastIndex];
 
-                        // Atualiza a quantidade e o valor total
                         produtoAtual.quantidade = quantidade;
                         produtoAtual.valorTotal =
                           quantidade *
                           (produtos.find((p) => p.id === produtoAtual.produtoId)
-                            ?.preco || 0); // Calcula o valor total
+                            ?.preco || 0);
 
                         setFieldValue("produtos", updatedProdutos);
                       }
@@ -188,10 +197,33 @@ const CadastroPedido: React.FC = () => {
                 />
               </Form.Item>
 
+              <Divider orientation="left">Produtos Selecionados</Divider>
+              {values.produtos.length === 0 ? (
+                <p>Nenhum produto selecionado.</p>
+              ) : (
+                <Card>
+                  <ul>
+                    {values.produtos.map((produto, index) => (
+                      <li key={index}>
+                        {produtos.find((p) => p.id === produto.produtoId)
+                          ?.descricao || ""}{" "}
+                        - Quantidade: {produto.quantidade}- Valor:{" R$"}
+                        {
+                          produtos.find((p) => p.id === produto.produtoId)
+                            ?.valorUn
+                        }{" "}
+                      </li>
+                    ))}
+                  </ul>
+                </Card>
+              )}
+
               <Form.Item>
                 <Button type="primary" htmlType="submit">
                   Cadastrar Pedido
                 </Button>
+
+                <Button onClick={() => console.log(values.produtos)}>ON CLICK</Button>
               </Form.Item>
             </Form>
           )}

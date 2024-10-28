@@ -104,9 +104,16 @@ const TabelaPedidos: React.FC = () => {
       key: "id",
     },
     {
-      title: "Cliente ID",
-      dataIndex: "clienteId",
-      key: "clienteId",
+      title: "Clientes",
+      dataIndex: ["cliente", "nome"],
+      key: "cliente",
+    },
+    {
+      title: "Produtos ID",
+      dataIndex: "produtos",
+      key: "produtos",
+      render: (produtos: any[]) =>
+        produtos.map((produto) => produto.produtoId).join(", "),
     },
     {
       title: "Data",

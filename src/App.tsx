@@ -13,6 +13,7 @@ import CadastroPedido from "./pages/pedido/p4_pedido";
 import CadastroProduto from "./pages/produto/p5_produto";
 import TabelaItemPedidos from "./pages/item_pedido/tabela_item_pedido";
 import TabelaEstoque from "./pages/estoque/tabela_estoque";
+import { Login } from "./pages/login";
 
 function App() {
   return (
@@ -20,7 +21,8 @@ function App() {
       <Navbar />
 
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/menu" element={<Home />} />
         <Route path="/categoria" element={<CadastroCategoria />} />
         <Route path="/cliente" element={<CadastroCliente />} />
         <Route path="/fornecedor" element={<CadastroFornecedor />} />

@@ -1,12 +1,19 @@
-import { Image, Layout, Menu } from "antd";
+import { Button, Flex, Image, Layout, Menu } from "antd";
 import React from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/auth.context";
 
 const { Header } = Layout;
 
 export const Navbar: React.FC = () => {
+  const auth = useAuth();
+
+  const logout = () => {
+    auth?.logout();
+  };
+
   return (
-    <Header>
+    <Header style={{ display: "flex", justifyContent: "space-between" }}>
       <Menu
         theme="dark"
         mode="horizontal"
@@ -17,7 +24,7 @@ export const Navbar: React.FC = () => {
           key="1"
           style={{ display: "flex", alignItems: "center", height: "64px" }}
         >
-          <Link to="/" style={{ display: "flex", height: "100%" }}>
+          <Link to="/menu" style={{ display: "flex", height: "100%" }}>
             <img
               src="/img/white-space-logo.svg"
               alt="Logo"
@@ -27,24 +34,35 @@ export const Navbar: React.FC = () => {
         </Menu.Item>
 
         <Menu.Item key="2">
-          <Link to="/categoria">Categoria</Link>
+          <Link to="categoria">Categoria</Link>
         </Menu.Item>
 
         <Menu.Item key="3">
-          <Link to="/cliente">Cliente</Link>
+          <Link to="cliente">Cliente</Link>
         </Menu.Item>
 
         <Menu.Item key="4">
-          <Link to="/fornecedor">Fornecedor</Link>
+          <Link to="fornecedor">Fornecedor</Link>
         </Menu.Item>
 
         <Menu.Item key="5">
-          <Link to="/pedido">Pedido</Link>
+          <Link to="pedido">Pedido</Link>
         </Menu.Item>
 
         <Menu.Item key="6">
-          <Link to="/produto">Produto</Link>
+          <Link to="produto">Produto</Link>
         </Menu.Item>
+
+        <Button
+          onClick={logout}
+          style={{
+            marginLeft: "16px",
+            background: "transparent",
+            color: "white",
+          }}
+        >
+          Logout
+        </Button>
       </Menu>
     </Header>
   );

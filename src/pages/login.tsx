@@ -1,7 +1,10 @@
 import { Button, Form, Input, Layout } from "antd";
 import { Formik } from "formik";
-import React, { useState } from "react";
+import React from "react";
 import * as yup from "yup";
+import Fundo from '../assets/Element.png';
+import { InterfaceLogin } from "../interface/interfaceLogin";
+import { login } from "../service/auth_service";
 
 const { Content } = Layout;
 
@@ -10,26 +13,30 @@ const validationLogin = yup.object().shape({
   senha: yup.string().required("A senha é obrigatória"),
 });
 
-interface Login {
-  email: string;
-  senha: string;
-}
-
 export const Login: React.FC = () => {
-  const [login, setLodin] = useState<Login>({
-    email: "",
-    senha: "",
-  });
 
-  const handleSubmit = async () => {
-    console.log(values);
+  const handleSubmit = async (values: InterfaceLogin) => {
+    await login(values);
+
+    window.location.href = "/menu";
   };
 
   return (
     <Layout
-      style={{ width: "100%", justifyContent: "center", alignItems: "center" }}
+      style={{
+        backgroundImage: `url(${Fundo})`,
+        backgroundColor: '#043873',
+        backgroundSize: "100%",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
     >
-      <Content style={{ width: "30%", padding: "2.5%" }}>
+      <Content style={{ display: "flex", width: "40%", height: "100%", padding: "2.5%", alignItems: "center", justifyContent: "center", }}>
         <Formik
           initialValues={{
             email: "",
@@ -38,22 +45,35 @@ export const Login: React.FC = () => {
           validationSchema={validationLogin}
           onSubmit={handleSubmit}
         >
-          {({ errors, touched }) => (
-            <Form>
+          {({ handleSubmit, errors, touched, values, handleChange, handleBlur }) => (
+            <Form onFinish={handleSubmit} style={{ width: "100%", backgroundColor: "white", borderRadius: 12, padding: '24px' }}>
+
               <Form.Item
                 label="E-mail"
                 validateStatus={touched.email && errors.email ? "error" : ""}
                 help={touched.email && errors.email ? errors.email : ""}
               >
-                <Input name="email" />
+                <Input
+                  name="email"
+                  type="email"
+                  value={values.email}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                />
               </Form.Item>
 
               <Form.Item
-                label="senha"
+                label="Senha"
                 validateStatus={touched.senha && errors.senha ? "error" : ""}
                 help={touched.senha && errors.senha ? errors.senha : ""}
               >
-                <Input.Password name="senha" />
+                <Input.Password
+                  name="senha"
+                  type="password"
+                  value={values.senha}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                />
               </Form.Item>
 
               <Form.Item
@@ -61,21 +81,26 @@ export const Login: React.FC = () => {
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                  gap: "1rem",
+                  flexDirection: "column",
+                  margin: '0',
                 }}
               >
-                <p>
+                <p style={{
+                  marginBottom: '16px',
+                  color: 'black'
+                }}>
                   Não tem conta?{" "}
                   <a
-                    target="_blank"
-                    href="página de cadastro"
+                    href="/cadastro"
                     style={{ color: "blue" }}
                   >
                     Registre-se
                   </a>
                 </p>
 
-                <Button type="primary">Login</Button>
+                <Button type="primary" htmlType="submit">
+                  Login
+                </Button>
               </Form.Item>
             </Form>
           )}

@@ -1,8 +1,9 @@
 import React from "react";
-import { Form, Input, Button, Typography } from "antd";
+import { Form, Input, Button, Typography, Flex } from "antd";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { criarCliente } from "../../service/cliente_service"; // Mude para o serviço correto
+import { Conteudo } from "../../components/Content";
 
 const { Title } = Typography;
 
@@ -28,107 +29,127 @@ const CadastroCliente: React.FC = () => {
   };
 
   return (
-    <div>
-      <Title level={2}>Cadastro de Cliente</Title>
-
-      <Formik
-        initialValues={{
-          nome: "",
-          cnpjCpf: "",
-          endereco: "",
-          telefone: "",
-          email: "",
-          criadorId: 1, // Valor padrão do criadorId
+    <Conteudo altura="90.8%">
+      <Flex
+        style={{
+          width: "30%",
+          flexDirection: "column",
+          backgroundColor: "white",
+          borderRadius: 12,
+          padding: "24px",
         }}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
       >
-        {({
-          values,
-          errors,
-          touched,
-          handleChange,
-          handleBlur,
-          handleSubmit,
-        }) => (
-          <Form onFinish={handleSubmit}>
-            <Form.Item
-              label="Nome"
-              validateStatus={touched.nome && errors.nome ? "error" : ""}
-              help={touched.nome && errors.nome ? errors.nome : ""}
-            >
-              <Input
-                name="nome"
-                value={values.nome}
-                onChange={handleChange}
-                onBlur={handleBlur}
-              />
-            </Form.Item>
+        <Title level={2}>Cadastro de Cliente</Title>
 
-            <Form.Item
-              label="CNPJ/CPF"
-              validateStatus={touched.cnpjCpf && errors.cnpjCpf ? "error" : ""}
-              help={touched.cnpjCpf && errors.cnpjCpf ? errors.cnpjCpf : ""}
-            >
-              <Input
-                name="cnpjCpf"
-                value={values.cnpjCpf}
-                onChange={handleChange}
-                onBlur={handleBlur}
-              />
-            </Form.Item>
+        <Formik
+          initialValues={{
+            nome: "",
+            cnpjCpf: "",
+            endereco: "",
+            telefone: "",
+            email: "",
+            criadorId: 1, // Valor padrão do criadorId
+          }}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            handleSubmit,
+          }) => (
+            <Form onFinish={handleSubmit}>
+              <Form.Item
+                label="Nome"
+                validateStatus={touched.nome && errors.nome ? "error" : ""}
+                help={touched.nome && errors.nome ? errors.nome : ""}
+              >
+                <Input
+                  name="nome"
+                  value={values.nome}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                />
+              </Form.Item>
 
-            <Form.Item
-              label="Endereço"
-              validateStatus={touched.endereco && errors.endereco ? "error" : ""}
-              help={touched.endereco && errors.endereco ? errors.endereco : ""}
-            >
-              <Input
-                name="endereco"
-                value={values.endereco}
-                onChange={handleChange}
-                onBlur={handleBlur}
-              />
-            </Form.Item>
+              <Form.Item
+                label="CNPJ/CPF"
+                validateStatus={
+                  touched.cnpjCpf && errors.cnpjCpf ? "error" : ""
+                }
+                help={touched.cnpjCpf && errors.cnpjCpf ? errors.cnpjCpf : ""}
+              >
+                <Input
+                  name="cnpjCpf"
+                  value={values.cnpjCpf}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                />
+              </Form.Item>
 
-            <Form.Item
-              label="Telefone"
-              validateStatus={touched.telefone && errors.telefone ? "error" : ""}
-              help={touched.telefone && errors.telefone ? errors.telefone : ""}
-            >
-              <Input
-                name="telefone"
-                value={values.telefone}
-                onChange={handleChange}
-                onBlur={handleBlur}
-              />
-            </Form.Item>
+              <Form.Item
+                label="Endereço"
+                validateStatus={
+                  touched.endereco && errors.endereco ? "error" : ""
+                }
+                help={
+                  touched.endereco && errors.endereco ? errors.endereco : ""
+                }
+              >
+                <Input
+                  name="endereco"
+                  value={values.endereco}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                />
+              </Form.Item>
 
-            <Form.Item
-              label="Email"
-              validateStatus={touched.email && errors.email ? "error" : ""}
-              help={touched.email && errors.email ? errors.email : ""}
-            >
-              <Input
-                name="email"
-                value={values.email}
-                onChange={handleChange}
-                onBlur={handleBlur}
-              />
-            </Form.Item>
+              <Form.Item
+                label="Telefone"
+                validateStatus={
+                  touched.telefone && errors.telefone ? "error" : ""
+                }
+                help={
+                  touched.telefone && errors.telefone ? errors.telefone : ""
+                }
+              >
+                <Input
+                  name="telefone"
+                  value={values.telefone}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                />
+              </Form.Item>
 
-            {/* Campo escondido para criadorId */}
-            <Input type="hidden" name="criadorId" value={values.criadorId} />
+              <Form.Item
+                label="Email"
+                validateStatus={touched.email && errors.email ? "error" : ""}
+                help={touched.email && errors.email ? errors.email : ""}
+              >
+                <Input
+                  name="email"
+                  value={values.email}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                />
+              </Form.Item>
 
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Cadastrar
-              </Button>
-            </Form.Item>
-          </Form>
-        )}
-      </Formik>
-    </div>
+              {/* Campo escondido para criadorId */}
+              <Input type="hidden" name="criadorId" value={values.criadorId} />
+
+              <Form.Item>
+                <Button type="primary" htmlType="submit">
+                  Cadastrar
+                </Button>
+              </Form.Item>
+            </Form>
+          )}
+        </Formik>
+      </Flex>
+    </Conteudo>
   );
 };
 

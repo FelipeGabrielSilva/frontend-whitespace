@@ -35,7 +35,6 @@ const CadastroPedido: React.FC = () => {
   const [clientes, setClientes] = useState<any[]>([]);
   const [produtos, setProdutos] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [valorTotal, setValorTotal] = useState(0);
 
   useEffect(() => {
     fetchClientes();

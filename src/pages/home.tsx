@@ -16,6 +16,7 @@ const Home: React.FC = () => {
             </Card>
           </Link>
         </Col>
+
         <Col span={8}>
           <Link to="tabela=cliente">
             <Card title="CLIENTE" bordered={false}>
@@ -23,6 +24,7 @@ const Home: React.FC = () => {
             </Card>
           </Link>
         </Col>
+
         <Col span={8}>
           <Link to="tabela=fornecedor">
             <Card title="FORNECEDOR" bordered={false}>
@@ -30,6 +32,7 @@ const Home: React.FC = () => {
             </Card>
           </Link>
         </Col>
+
         <Col span={8}>
           <Link to="tabela=pedido">
             <Card title="PEDIDO" bordered={false}>
@@ -37,6 +40,7 @@ const Home: React.FC = () => {
             </Card>
           </Link>
         </Col>
+
         <Col span={8}>
           <Link to="tabela=produto">
             <Card title="PRODUTO" bordered={false}>
@@ -44,6 +48,7 @@ const Home: React.FC = () => {
             </Card>
           </Link>
         </Col>
+
         <Col span={8}>
           <Link to="tabela=item&pedido">
             <Card title="ITENS DE PEDIDO" bordered={false}>
@@ -51,10 +56,19 @@ const Home: React.FC = () => {
             </Card>
           </Link>
         </Col>
+
         <Col span={8}>
           <Link to="tabela=estoque">
             <Card title="ESTOQUE" bordered={false}>
               Conteúdo da Página 6
+            </Card>
+          </Link>
+        </Col>
+
+        <Col span={8}>
+          <Link to="tabela=usuarios">
+            <Card title="USUÁRIO" bordered={false}>
+              Conteúdo da Página 7
             </Card>
           </Link>
         </Col>

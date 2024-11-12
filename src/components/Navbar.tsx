@@ -1,15 +1,14 @@
-import { Button, Flex, Image, Layout, Menu } from "antd";
+import { Button, Layout, Menu } from "antd";
 import React from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/auth.context";
+import { logout } from "../service/auth_service";
 
 const { Header } = Layout;
 
 export const Navbar: React.FC = () => {
-  const auth = useAuth();
-
-  const logout = () => {
-    auth?.logout();
+  
+  const sair = () => {
+    logout();
   };
 
   return (
@@ -54,7 +53,7 @@ export const Navbar: React.FC = () => {
         </Menu.Item>
 
         <Button
-          onClick={logout}
+          onClick={sair}
           style={{
             marginLeft: "16px",
             background: "transparent",

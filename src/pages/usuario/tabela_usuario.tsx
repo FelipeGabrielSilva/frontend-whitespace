@@ -14,28 +14,33 @@ import {
   removerCategoria,
   atualizarCategoria,
 } from "../../service/categoria_service";
+import {
+  atualizarUsuario,
+  buscarTodosUsuarios,
+  removerUsuario,
+} from "../../service/usuario_service";
 
 const { Title } = Typography;
 
-const TabelaCategorias: React.FC = () => {
-  const [categorias, setCategorias] = useState<any[]>([]);
+const TabelaUsuarios: React.FC = () => {
+  const [usuarios, setUsuarios] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [currentCategoria, setCurrentCategoria] = useState<any>(null);
+  const [currentUsuario, setCurrentUsuario] = useState<any>(null);
 
   useEffect(() => {
-    listarCategorias();
+    listarUsuarios();
   }, []);
 
-  const listarCategorias = async () => {
+  const listarUsuarios = async () => {
     setLoading(true);
     try {
-      const data = await procurarTodosCategorias();
-      setCategorias(data);
+      const data = await buscarTodosUsuarios();
+      setUsuarios(data);
     } catch (error: any) {
-      console.error("Erro ao listar categorias:", error);
+      console.error("Erro ao listar usuários:", error);
       notification.error({
-        message: "Erro ao listar categorias",
+        message: "Erro ao listar usuários",
         description: "Alguma coisa deu errado, tente novamente.",
       });
     } finally {
@@ -45,53 +50,52 @@ const TabelaCategorias: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      await removerCategoria(id);
-      setCategorias(categorias.filter((categoria) => categoria.id !== id));
+      await removerUsuario(id);
+
+      setUsuarios(usuarios.filter((usuario) => usuario.id !== id));
+
       notification.success({
-        message: "Categoria deletada com sucesso",
-        description: "A categoria foi removida com sucesso.",
+        message: "Usuário",
+        description: "O usuário foi removida com sucesso.",
       });
     } catch (error: any) {
-      console.error("Erro ao deletar categoria:", error);
+      console.error("Erro ao deletar usuário:", error);
+
       notification.error({
-        message: "Erro ao deletar categoria",
+        message: "Erro ao deletar usuário",
         description: error.message,
       });
     }
   };
 
-  const handleEdit = (categoria: any) => {
-    setCurrentCategoria(categoria);
+  const handleEdit = (usuario: any) => {
+    setCurrentUsuario(usuario);
     setIsModalVisible(true);
   };
 
   const handleUpdate = async (values: any) => {
     try {
-      // Chama o serviço de atualização com os dados novos
-      const updatedCategoria = await atualizarCategoria(
-        currentCategoria.id,
-        values
-      );
+      const updatedUsuario = await atualizarUsuario(currentUsuario.id, values);
 
-      // Atualiza a lista local com a categoria editada
-      setCategorias((prevCategorias) =>
-        prevCategorias.map((categoria) =>
-          categoria.id === updatedCategoria.id ? updatedCategoria : categoria
+      setUsuarios((prevUsuarios) =>
+        prevUsuarios.map((usuario) =>
+          usuario.id === updatedUsuario.id ? updatedUsuario : usuario
         )
       );
 
       setIsModalVisible(false);
-      setCurrentCategoria(null);
+      setCurrentUsuario(null);
 
       notification.success({
-        message: "Categoria atualizada com sucesso",
+        message: "Usuário atualizada com sucesso",
         description: "As alterações foram salvas com sucesso.",
       });
     } catch (error: any) {
-      console.error("Erro ao atualizar categoria:", error);
+      console.error("Erro ao atualizar usuário:", error);
+
       notification.error({
-        message: "Erro ao atualizar categoria",
-        description: "Não foi possível atualizar a categoria.",
+        message: "Erro ao atualizar usuário",
+        description: "Não foi possível atualizar a usuário.",
       });
     }
   };
@@ -103,9 +107,14 @@ const TabelaCategorias: React.FC = () => {
       key: "id",
     },
     {
-      title: "Descrição",
-      dataIndex: "descricao",
-      key: "descricao",
+      title: "Nome",
+      dataIndex: "nome",
+      key: "nome",
+    },
+    {
+      title: "E-mail",
+      dataIndex: "email",
+      key: "email",
     },
     {
       title: "Criado Em",
@@ -116,11 +125,6 @@ const TabelaCategorias: React.FC = () => {
       title: "Atualizado Em",
       dataIndex: "atualizadoEm",
       key: "atualizadoEm",
-    },
-    {
-      title: "Criador ID",
-      dataIndex: "criadorId",
-      key: "criadorId",
     },
     {
       title: "Ações",
@@ -134,6 +138,7 @@ const TabelaCategorias: React.FC = () => {
           >
             Editar
           </Button>
+
           <Button
             onClick={() => handleDelete(record.id)}
             style={{ background: "red", color: "white" }}
@@ -177,20 +182,20 @@ const TabelaCategorias: React.FC = () => {
           alignItems: "center",
         }}
       >
-        <Title level={2}>Categorias</Title>
+        <Title level={2}>Usuarios</Title>
       </div>
       <div style={{ border: "1px solid #cdcdcd ", borderRadius: 8 }}>
-        <Table dataSource={categorias} columns={columns} rowKey="id" />
+        <Table dataSource={usuarios} columns={columns} rowKey="id" />
       </div>
 
       {/* Modal para editar a categoria */}
       <Modal
-        title="Editar Categoria"
+        title="Editar usuário"
         visible={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         footer={null}
       >
-        <Form initialValues={currentCategoria} onFinish={handleUpdate}>
+        <Form initialValues={currentUsuario} onFinish={handleUpdate}>
           <Form.Item
             label="Descrição"
             name="descricao"
@@ -211,4 +216,4 @@ const TabelaCategorias: React.FC = () => {
   );
 };
 
-export default TabelaCategorias;
+export default TabelaUsuarios;

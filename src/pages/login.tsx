@@ -2,7 +2,7 @@ import { Button, Form, Input, Layout } from "antd";
 import { Formik } from "formik";
 import React from "react";
 import * as yup from "yup";
-import Fundo from '../assets/Element.png';
+import Fundo from "../assets/Element.png";
 import { InterfaceLogin } from "../interface/interfaceLogin";
 import { login } from "../service/auth_service";
 
@@ -14,7 +14,6 @@ const validationLogin = yup.object().shape({
 });
 
 export const Login: React.FC = () => {
-
   const handleSubmit = async (values: InterfaceLogin) => {
     await login(values);
 
@@ -25,7 +24,7 @@ export const Login: React.FC = () => {
     <Layout
       style={{
         backgroundImage: `url(${Fundo})`,
-        backgroundColor: '#043873',
+        backgroundColor: "#043873",
         backgroundSize: "100%",
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center",
@@ -36,7 +35,16 @@ export const Login: React.FC = () => {
         alignItems: "center",
       }}
     >
-      <Content style={{ display: "flex", width: "40%", height: "100%", padding: "2.5%", alignItems: "center", justifyContent: "center", }}>
+      <Content
+        style={{
+          display: "flex",
+          width: "40%",
+          height: "100%",
+          padding: "2.5%",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <Formik
           initialValues={{
             email: "",
@@ -45,9 +53,23 @@ export const Login: React.FC = () => {
           validationSchema={validationLogin}
           onSubmit={handleSubmit}
         >
-          {({ handleSubmit, errors, touched, values, handleChange, handleBlur }) => (
-            <Form onFinish={handleSubmit} style={{ width: "100%", backgroundColor: "white", borderRadius: 12, padding: '24px' }}>
-
+          {({
+            handleSubmit,
+            errors,
+            touched,
+            values,
+            handleChange,
+            handleBlur,
+          }) => (
+            <Form
+              onFinish={handleSubmit}
+              style={{
+                width: "100%",
+                backgroundColor: "white",
+                borderRadius: 12,
+                padding: "24px",
+              }}
+            >
               <Form.Item
                 label="E-mail"
                 validateStatus={touched.email && errors.email ? "error" : ""}
@@ -82,18 +104,17 @@ export const Login: React.FC = () => {
                   justifyContent: "center",
                   alignItems: "center",
                   flexDirection: "column",
-                  margin: '0',
+                  margin: "0",
                 }}
               >
-                <p style={{
-                  marginBottom: '16px',
-                  color: 'black'
-                }}>
+                <p
+                  style={{
+                    marginBottom: "16px",
+                    color: "black",
+                  }}
+                >
                   Não tem conta?{" "}
-                  <a
-                    href="/cadastro"
-                    style={{ color: "blue" }}
-                  >
+                  <a href="/cadastro" style={{ color: "blue" }}>
                     Registre-se
                   </a>
                 </p>

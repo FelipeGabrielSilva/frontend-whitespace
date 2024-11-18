@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, Input, Button, Typography, Flex } from "antd";
+import { Form, Input, Button, Typography, Flex, message } from "antd";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { criarCliente } from "../../service/cliente_service"; // Mude para o serviço correto
@@ -22,14 +22,16 @@ const validationSchema = Yup.object().shape({
 const CadastroCliente: React.FC = () => {
   const handleSubmit = async (values: any) => {
     try {
-      await criarCliente(values); // Chama a função do serviço para criar cliente
+      await criarCliente(values);
+
+      message.success("Cliente criado com sucesso!");
     } catch (error: any) {
       console.error("Erro ao criar cliente:", error);
     }
   };
 
   return (
-    <Conteudo altura="90.8%">
+    <Conteudo>
       <Flex
         style={{
           width: "30%",
@@ -137,7 +139,6 @@ const CadastroCliente: React.FC = () => {
                 />
               </Form.Item>
 
-              {/* Campo escondido para criadorId */}
               <Input type="hidden" name="criadorId" value={values.criadorId} />
 
               <Form.Item>

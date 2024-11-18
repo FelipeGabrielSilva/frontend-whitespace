@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, Input, Button, Typography, Flex } from "antd";
+import { Form, Input, Button, Typography, Flex, message } from "antd";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { criarFornecedor } from "../../service/fornecedor_service"; // Ajuste o serviço para fornecedor
@@ -22,10 +22,12 @@ const validationSchema = Yup.object().shape({
 
 const CadastroFornecedor: React.FC = () => {
   const handleSubmit = async (values: any) => {
-    console.log("Valores enviados:", values); // Verifique os dados aqui
+    console.log("Valores enviados:", values);
+
     try {
-      await criarFornecedor(values); // Função para criar fornecedor
-      alert("Fornecedor criado com sucesso!");
+      await criarFornecedor(values);
+
+      message.success("Fornecedor criado com sucesso!");
     } catch (error: any) {
       console.error("Erro ao criar fornecedor:", error);
       alert(error.message);
@@ -33,7 +35,7 @@ const CadastroFornecedor: React.FC = () => {
   };
 
   return (
-    <Conteudo altura="90.8%">
+    <Conteudo>
       <Flex
         style={{
           width: "30%",
@@ -126,7 +128,6 @@ const CadastroFornecedor: React.FC = () => {
                 />
               </Form.Item>
 
-              {/* Campo oculto para criadorId (ajuste se necessário) */}
               <input type="hidden" name="criadorId" value={values.criadorId} />
 
               <Form.Item>

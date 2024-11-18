@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Form, Select, Button, Typography, Input, Flex } from "antd";
+import { Form, Select, Button, Typography, Input, Flex, message } from "antd";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { criarProduto } from "../../service/produto_service";
@@ -43,14 +43,15 @@ const CadastroProduto: React.FC = () => {
   const handleSubmit = async (values: any) => {
     try {
       await criarProduto(values);
-      alert("Produto criado com sucesso!"); // Mensagem de sucesso
+
+      message.success("Produto criado com sucesso!");
     } catch (error: any) {
       console.error("Erro ao criar produto:", error);
     }
   };
 
   return (
-    <Conteudo altura="90.8%">
+    <Conteudo>
       <Flex
         style={{
           width: "30%",

@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, Input, Button, Typography, Flex } from "antd";
+import { Form, Input, Button, Typography, Flex, message } from "antd";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { criarCategoria } from "../../service/categoria_service";
@@ -16,13 +16,15 @@ const CadastroCategoria: React.FC = () => {
   const handleSubmit = async (values: any) => {
     try {
       await criarCategoria(values);
+
+      message.success("Categoria criada com sucesso!");
     } catch (error: any) {
       console.error("Erro ao criar categoria:", error);
     }
   };
 
   return (
-    <Conteudo altura="90.8%">
+    <Conteudo>
       <Flex
         style={{
           width: "30%",

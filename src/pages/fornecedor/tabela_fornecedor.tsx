@@ -16,6 +16,8 @@ import {
   procurarTodosFornecedores,
   removerFornecedor,
 } from "../../service/fornecedor_service";
+import aplicarMascaraTelefone from "../../mask/maskTelefone";
+import PrivateButton from "../../components/PrivateButton";
 
 const { Title } = Typography;
 
@@ -32,6 +34,12 @@ const TabelaFornecedores: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedFornecedor, setSelectedFornecedor] = useState<any>(null);
 
+  // Filtros de buscas
+  const [nomeFiltro, setNomeFiltro] = useState("");
+  const [cnpjFiltro, setCnpjFiltro] = useState("");
+  const [telefoneFiltro, setTelefoneFiltro] = useState("");
+  const [emailFiltro, setEmailFiltro] = useState("");
+
   useEffect(() => {
     listarFornecedores();
   }, []);
@@ -40,7 +48,24 @@ const TabelaFornecedores: React.FC = () => {
     setLoading(true);
     try {
       const data = await procurarTodosFornecedores();
-      setFornecedores(data);
+      const filteredData = data.filter((fornecedor: any) => {
+        const nomeMatch =
+          nomeFiltro === "" ||
+          fornecedor.nome.toLowerCase().includes(nomeFiltro.toLowerCase());
+        const cnpjMatch =
+          cnpjFiltro === "" ||
+          fornecedor.cnpj.toLowerCase().includes(cnpjFiltro.toLowerCase());
+        const telefoneMatch =
+          telefoneFiltro === "" ||
+          fornecedor.telefone
+            .toLowerCase()
+            .includes(telefoneFiltro.toLowerCase());
+        const emailMatch =
+          emailFiltro === "" ||
+          fornecedor.email.toLowerCase().includes(emailFiltro.toLowerCase());
+        return nomeMatch && cnpjMatch && telefoneMatch && emailMatch;
+      });
+      setFornecedores(filteredData);
     } catch (error: any) {
       console.error("Erro ao listar fornecedores:", error);
       notification.error({
@@ -131,6 +156,7 @@ const TabelaFornecedores: React.FC = () => {
       title: "Telefone",
       dataIndex: "telefone",
       key: "telefone",
+      render: (telefone: string) => aplicarMascaraTelefone(telefone),
     },
     {
       title: "Email",
@@ -164,12 +190,15 @@ const TabelaFornecedores: React.FC = () => {
           >
             Editar
           </Button>
-          <Button
-            onClick={() => handleDelete(record.id)}
-            style={{ background: "red", color: "white" }}
-          >
-            Deletar
-          </Button>
+
+          <PrivateButton roles={["Admin"]}>
+            <Button
+              onClick={() => handleDelete(record.id)}
+              style={{ background: "red", color: "white" }}
+            >
+              Deletar
+            </Button>
+          </PrivateButton>
         </span>
       ),
     },
@@ -198,17 +227,58 @@ const TabelaFornecedores: React.FC = () => {
         padding: "0 10%",
       }}
     >
+      <div>
+        <Title level={2}>Fornecedores</Title>
+      </div>
+
       <div
         style={{
           display: "flex",
+          gap: "8px",
           flexDirection: "row",
           width: "100%",
-          justifyContent: "space-between",
+          marginBottom: "16px",
           alignItems: "center",
+          fontFamily: "Arial",
         }}
       >
-        <Title level={2}>Fornecedores</Title>
+        <label htmlFor="nomeFiltro">Nome:</label>
+        <Input
+          id="nomeFiltro"
+          value={nomeFiltro}
+          onChange={(e) => setNomeFiltro(e.target.value)}
+          placeholder="Filtro por nome"
+        />
+
+        <label htmlFor="cnpjFiltro">CNPJ:</label>
+        <Input
+          id="cnpjFiltro"
+          value={cnpjFiltro}
+          onChange={(e) => setCnpjFiltro(e.target.value)}
+          placeholder="Filtro por CNPJ"
+        />
+
+        <label htmlFor="telefoneFiltro">Telefone:</label>
+        <Input
+          id="telefoneFiltro"
+          value={telefoneFiltro}
+          onChange={(e) => setTelefoneFiltro(e.target.value)}
+          placeholder="Filtro por telefone"
+        />
+
+        <label htmlFor="emailFiltro">Email:</label>
+        <Input
+          id="emailFiltro"
+          value={emailFiltro}
+          onChange={(e) => setEmailFiltro(e.target.value)}
+          placeholder="Filtro por email"
+        />
+
+        <Button type="primary" onClick={listarFornecedores}>
+          Filtrar
+        </Button>
       </div>
+
       <div style={{ border: "1px solid #cdcdcd ", borderRadius: 8 }}>
         <Table dataSource={fornecedores} columns={columns} rowKey="id" />
       </div>

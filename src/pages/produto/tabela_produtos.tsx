@@ -16,6 +16,7 @@ import {
   procurarTodosProdutos,
   removerProduto,
 } from "../../service/produto_service";
+import PrivateButton from "../../components/PrivateButton";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -28,6 +29,14 @@ const TabelaProdutos: React.FC = () => {
   const [selectedProduto, setSelectedProduto] = useState<any>(null);
   const [form] = Form.useForm();
 
+  // Filtros de buscas
+  const [descricaoFiltro, setDescricaoFiltro] = useState("");
+  const [categoriaFiltro, setCategoriaFiltro] = useState(null);
+  const [medidaFiltro, setMedidaFiltro] = useState("");
+  const [precoCompraFiltro, setPrecoCompraFiltro] = useState("");
+  const [valorUnFiltro, setValorUnFiltro] = useState("");
+  const [quantidadeFiltro, setQuantidadeFiltro] = useState("");
+
   useEffect(() => {
     listarProdutos();
     listarCategorias();
@@ -37,9 +46,42 @@ const TabelaProdutos: React.FC = () => {
     setLoading(true);
     try {
       const data = await procurarTodosProdutos();
-      setProdutos(data);
+      const filteredData = data.filter((produto: any) => {
+        const descricaoMatch =
+          descricaoFiltro === "" ||
+          produto.descricao
+            .toLowerCase()
+            .includes(descricaoFiltro.toLowerCase());
+        const categoriaMatch =
+          categoriaFiltro === null || produto.categoria.id === categoriaFiltro;
+        const medidaMatch =
+          medidaFiltro === "" ||
+          produto.medida.descricao
+            .toLowerCase()
+            .includes(medidaFiltro.toLowerCase());
+        const precoCompraMatch =
+          precoCompraFiltro === "" ||
+          produto.precoCompra.toString().includes(precoCompraFiltro);
+        const valorUnMatch =
+          valorUnFiltro === "" ||
+          produto.valorUn.toString().includes(valorUnFiltro);
+        const quantidadeMatch =
+          quantidadeFiltro === "" ||
+          produto.quantidade.toString().includes(quantidadeFiltro);
+
+        return (
+          descricaoMatch &&
+          categoriaMatch &&
+          medidaMatch &&
+          precoCompraMatch &&
+          valorUnMatch &&
+          quantidadeMatch
+        );
+      });
+      setProdutos(filteredData);
     } catch (error: any) {
       console.error("Erro ao listar produtos:", error);
+
       notification.error({
         message: "Erro ao listar produtos",
         description: "Alguma coisa deu errado, tente novamente.",
@@ -133,7 +175,7 @@ const TabelaProdutos: React.FC = () => {
     {
       title: "Unidade de Medida",
       dataIndex: ["medida", "descricao"],
-      key: "medida",
+      key: "descricao",
     },
     {
       title: "Preço de Compra",
@@ -168,12 +210,15 @@ const TabelaProdutos: React.FC = () => {
           >
             Editar
           </Button>
-          <Button
-            onClick={() => handleDelete(record.id)}
-            style={{ background: "red", color: "white" }}
-          >
-            Deletar
-          </Button>
+
+          <PrivateButton roles={["Admin"]}>
+            <Button
+              onClick={() => handleDelete(record.id)}
+              style={{ background: "red", color: "white" }}
+            >
+              Deletar
+            </Button>
+          </PrivateButton>
         </span>
       ),
     },
@@ -213,6 +258,94 @@ const TabelaProdutos: React.FC = () => {
       >
         <Title level={2}>Produtos</Title>
       </div>
+
+      <div
+        style={{
+          display: "flex",
+          gap: "8px",
+          flexDirection: "row",
+          width: "100%",
+          marginBottom: "16px",
+          alignItems: "center",
+          fontFamily: "Arial",
+        }}
+      >
+        <div>
+          <label htmlFor="descricaoFiltro">Descrição:</label>
+          <Input
+            id="descricaoFiltro"
+            value={descricaoFiltro}
+            onChange={(e) => setDescricaoFiltro(e.target.value)}
+            placeholder="Filtro por descrição"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="medidaFiltro">Medida:</label>
+          <Input
+            id="medidaFiltro"
+            value={medidaFiltro}
+            onChange={(e) => setMedidaFiltro(e.target.value)}
+            placeholder="Filtro por medida"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="precoCompraFiltro">Preço de Compra:</label>
+          <Input
+            id="precoCompraFiltro"
+            value={precoCompraFiltro}
+            onChange={(e) => setPrecoCompraFiltro(e.target.value)}
+            placeholder="Filtro por preço de compra"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="valorUnFiltro">Valor Unitário:</label>
+          <Input
+            id="valorUnFiltro"
+            value={valorUnFiltro}
+            onChange={(e) => setValorUnFiltro(e.target.value)}
+            placeholder="Filtro por valor unitário"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="quantidadeFiltro">Quantidade:</label>
+          <Input
+            id="quantidadeFiltro"
+            value={quantidadeFiltro}
+            onChange={(e) => setQuantidadeFiltro(e.target.value)}
+            placeholder="Filtro por quantidade"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="categoriaFiltro">Categoria:</label>
+          <Select
+            id="categoriaFiltro"
+            value={categoriaFiltro}
+            onChange={(value) => setCategoriaFiltro(value)}
+            style={{ width: 200 }}
+          >
+            <Option value={null}>Todas</Option>
+            {categorias.map((categoria) => (
+              <Option key={categoria.id} value={categoria.id}>
+                {categoria.descricao}
+              </Option>
+            ))}
+          </Select>
+        </div>
+
+        <Button
+          type="primary"
+          onClick={listarProdutos}
+          style={{ marginLeft: 16, marginTop: 16 }}
+        >
+          Filtrar
+        </Button>
+      </div>
+
       <div style={{ border: "1px solid #cdcdcd ", borderRadius: 8 }}>
         <Table dataSource={produtos} columns={columns} rowKey="id" />
       </div>

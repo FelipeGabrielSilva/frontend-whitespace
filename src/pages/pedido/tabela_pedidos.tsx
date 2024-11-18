@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from "react";
 import {
   Button,
+  Form,
+  Modal,
   notification,
+  Select,
   Spin,
   Table,
   Typography,
-  Modal,
-  Form,
-  Input,
-  Select,
 } from "antd";
+import React, { useEffect, useState } from "react";
 import {
+  atualizarPedido,
   procurarTodosPedidos,
   removerPedido,
-  atualizarPedido,
 } from "../../service/pedido_service";
+import PrivateButton from "../../components/PrivateButton";
 
 const { Title } = Typography;
 
@@ -37,6 +37,7 @@ const TabelaPedidos: React.FC = () => {
 
   const listarPedidos = async () => {
     setLoading(true);
+
     try {
       const data = await procurarTodosPedidos();
       setPedidos(data);
@@ -109,11 +110,19 @@ const TabelaPedidos: React.FC = () => {
       key: "cliente",
     },
     {
-      title: "Produtos ID",
-      dataIndex: "produtos",
-      key: "produtos",
-      render: (produtos: any[]) =>
-        produtos.map((produto) => produto.produtoId).join(", "),
+      title: "Valor Total Produtos",
+      dataIndex: "valorTotalPedido",
+      key: "valorTotalPedido",
+      render: (valorTotal: number) => {
+        if (
+          valorTotal === undefined ||
+          valorTotal === null ||
+          isNaN(valorTotal)
+        ) {
+          return "N/A";
+        }
+        return `R$ ${valorTotal.toFixed(2)}`;
+      },
     },
     {
       title: "Data",
@@ -137,12 +146,15 @@ const TabelaPedidos: React.FC = () => {
           >
             Editar
           </Button>
-          <Button
-            onClick={() => handleDelete(record.id)}
-            style={{ background: "red", color: "white" }}
-          >
-            Deletar
-          </Button>
+
+          <PrivateButton roles={["Admin"]}>
+            <Button
+              onClick={() => handleDelete(record.id)}
+              style={{ background: "red", color: "white" }}
+            >
+              Deletar
+            </Button>
+          </PrivateButton>
         </span>
       ),
     },

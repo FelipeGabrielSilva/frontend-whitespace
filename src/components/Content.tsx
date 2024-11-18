@@ -1,16 +1,14 @@
+import { Content } from "antd/es/layout/layout";
 import React from "react";
 import Fundo from "../assets/Element.png";
-import { Layout } from "antd";
-import { Content } from "antd/es/layout/layout";
 
 interface Props {
-  altura: string;
   children: any;
 }
 
-export const Conteudo: React.FC<Props> = ({ altura, children }) => {
+export const Conteudo: React.FC<Props> = ({ children }) => {
   return (
-    <Layout style={{ height: altura }}>
+    <div style={{ width: "100%" }}>
       <Content
         style={{
           backgroundImage: `url(${Fundo})`,
@@ -18,15 +16,16 @@ export const Conteudo: React.FC<Props> = ({ altura, children }) => {
           backgroundSize: "100%",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
-          width: "100%",
-          height: "100%",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          flexWrap: "wrap",
+          height: "100vh",
+          gap: "36px",
         }}
       >
         {children}
       </Content>
-    </Layout>
+    </div>
   );
 };

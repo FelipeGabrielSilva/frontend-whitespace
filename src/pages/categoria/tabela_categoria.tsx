@@ -14,6 +14,7 @@ import {
   removerCategoria,
   atualizarCategoria,
 } from "../../service/categoria_service";
+import PrivateButton from "../../components/PrivateButton";
 
 const { Title } = Typography;
 
@@ -134,12 +135,15 @@ const TabelaCategorias: React.FC = () => {
           >
             Editar
           </Button>
-          <Button
-            onClick={() => handleDelete(record.id)}
-            style={{ background: "red", color: "white" }}
-          >
-            Deletar
-          </Button>
+
+          <PrivateButton roles={["Admin"]}>
+            <Button
+              onClick={() => handleDelete(record.id)}
+              style={{ background: "red", color: "white" }}
+            >
+              Deletar
+            </Button>
+          </PrivateButton>
         </span>
       ),
     },

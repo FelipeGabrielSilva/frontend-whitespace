@@ -45,6 +45,7 @@ const CadastroPedido: React.FC = () => {
     try {
       const response = await procurarTodosClientes();
       setClientes(response);
+
     } catch (error: any) {
       console.error("Erro ao buscar clientes:", error);
       message.error("Erro ao buscar clientes");
@@ -74,7 +75,7 @@ const CadastroPedido: React.FC = () => {
   };
 
   return (
-    <Conteudo altura="90.8%">
+    <Conteudo>
       <Flex
         style={{
           width: "30%",

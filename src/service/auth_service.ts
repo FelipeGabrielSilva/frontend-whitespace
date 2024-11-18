@@ -7,6 +7,8 @@ export const login = async (login: InterfaceLogin) => {
     const res = await api.post(`/auth/login`, login);
 
     localStorage.setItem("access_token", res.data.access_token);
+
+    localStorage.setItem("role", res.data.payload.role);
     message.success("Login realizado com sucesso!");
 
     return res.data;
@@ -31,34 +33,4 @@ export const logout = () => {
 
 export const isAuthenticated = () => {
   return !!localStorage.getItem("access_token");
-};
-
-export const getUsuarioLogado = async () => {
-  const token = localStorage.getItem("access_token");
-
-  if (!token) {
-    return null;
-  }
-
-  try {
-    const response = await api.get("/auth/usuario/logado", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (response.status === 200) {
-      return response.data;
-    } else {
-      console.error(
-        "Erro ao obter dados do usuário:",
-        response.status,
-        response.data
-      );
-      return null;
-    }
-  } catch (error) {
-    console.error("Erro na requisição getUsuarioLogado:", error);
-    return null;
-  }
 };

@@ -1,4 +1,13 @@
-import { Button, Form, Input, Modal, notification, Spin, Table, Typography } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  Modal,
+  notification,
+  Spin,
+  Table,
+  Typography,
+} from "antd";
 import { ErrorMessage, Field, Formik, Form as FormikForm } from "formik";
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
@@ -7,6 +16,8 @@ import {
   procurarTodosClientes,
   removerCliente,
 } from "../../service/cliente_service";
+import aplicarMascaraTelefone from "../../mask/maskTelefone";
+import PrivateButton from "../../components/PrivateButton";
 
 const { Title } = Typography;
 
@@ -24,6 +35,12 @@ const TabelaClientes: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedCliente, setSelectedCliente] = useState<any>(null);
 
+  // Filtros de buscas
+  const [nomeFiltro, setNomeFiltro] = useState("");
+  const [cnpjCpfFiltro, setCnpjCpfFiltro] = useState("");
+  const [telefoneFiltro, setTelefoneFiltro] = useState("");
+  const [emailFiltro, setEmailFiltro] = useState("");
+
   useEffect(() => {
     listarClientes();
   }, []);
@@ -32,7 +49,24 @@ const TabelaClientes: React.FC = () => {
     setLoading(true);
     try {
       const data = await procurarTodosClientes();
-      setClientes(data);
+      // Aplicar filtros
+      const filteredClientes = data.filter((cliente: any) => {
+        return (
+          (nomeFiltro === "" ||
+            cliente.nome.toLowerCase().includes(nomeFiltro.toLowerCase())) &&
+          (cnpjCpfFiltro === "" ||
+            cliente.cnpjCpf
+              .toLowerCase()
+              .includes(cnpjCpfFiltro.toLowerCase())) &&
+          (telefoneFiltro === "" ||
+            cliente.telefone
+              .toLowerCase()
+              .includes(telefoneFiltro.toLowerCase())) &&
+          (emailFiltro === "" ||
+            cliente.email.toLowerCase().includes(emailFiltro.toLowerCase()))
+        );
+      });
+      setClientes(filteredClientes);
     } catch (error: any) {
       console.error("Erro ao listar clientes:", error);
       notification.error({
@@ -122,6 +156,7 @@ const TabelaClientes: React.FC = () => {
       title: "Telefone",
       dataIndex: "telefone",
       key: "telefone",
+      render: (telefone: string) => aplicarMascaraTelefone(telefone),
     },
     {
       title: "Email",
@@ -145,12 +180,15 @@ const TabelaClientes: React.FC = () => {
           >
             Editar
           </Button>
+
+          <PrivateButton roles={["Admin"]}>
           <Button
             onClick={() => handleDelete(record.id)}
             style={{ background: "red", color: "white" }}
           >
             Deletar
           </Button>
+          </PrivateButton>
         </span>
       ),
     },
@@ -190,6 +228,50 @@ const TabelaClientes: React.FC = () => {
       >
         <Title level={2}>Cliente</Title>
       </div>
+
+      <div
+        style={{
+          display: "flex",
+          gap: "8px",
+          flexDirection: "row",
+          width: "100%",
+          marginBottom: "16px",
+          alignItems: "center",
+          fontFamily: "Arial",
+        }}
+      >
+        <label htmlFor="Nome">Nome:</label>
+        <Input
+          placeholder="Nome"
+          value={nomeFiltro}
+          onChange={(e) => setNomeFiltro(e.target.value)}
+        />
+
+        <label htmlFor="CNPJ/CPF">CNPJ/CPF:</label>
+        <Input
+          placeholder="CNPJ/CPF com pontuação"
+          value={cnpjCpfFiltro}
+          onChange={(e) => setCnpjCpfFiltro(e.target.value)}
+        />
+
+        <label htmlFor="Telefone">Telefone:</label>
+        <Input
+          placeholder="Telefone"
+          value={telefoneFiltro}
+          onChange={(e) => setTelefoneFiltro(e.target.value)}
+        />
+
+        <label htmlFor="Email">Email:</label>
+        <Input
+          placeholder="Email"
+          value={emailFiltro}
+          onChange={(e) => setEmailFiltro(e.target.value)}
+        />
+        <Button type="primary" onClick={listarClientes}>
+          Filtrar
+        </Button>
+      </div>
+
       <div style={{ border: "1px solid #cdcdcd ", borderRadius: 8 }}>
         <Table dataSource={clientes} columns={columns} rowKey="id" />
       </div>

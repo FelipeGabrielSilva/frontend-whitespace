@@ -36,8 +36,8 @@ const TabelaPedidos: React.FC = () => {
     },
     {
       title: "Produto Id",
-      dataIndex: "produtoId",
-      key: "produtoId",
+      dataIndex: ["produto", "descricao"],
+      key: "descricao",
     },
     {
       title: "Pedido ID",
@@ -88,7 +88,7 @@ const TabelaPedidos: React.FC = () => {
           alignItems: "center",
         }}
       >
-        <Title level={2}>Pedidos</Title>
+        <Title level={2}>Itens dos pedidos</Title>
       </div>
       <div style={{ border: "1px solid #cdcdcd ", borderRadius: 8 }}>
         <Table dataSource={pedidos} columns={columns} rowKey="id" />
